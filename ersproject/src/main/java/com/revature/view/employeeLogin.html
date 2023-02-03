@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERS Web App</title>
+    <style type="text/css">
+        body {
+            background-color: #1F1E1F;
+            box-sizing: border-box;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+        }
+        section {
+            text-align: center;
+        }
+        .form-container {
+            background-color: #FFFFFF;
+            border-radius: 64px;
+            height: 768px;
+            margin: 32px auto;
+            max-width: 512px;
+            min-width: 384px;
+            padding: 16px;
+            width: 50%;
+        }
+        h1 {
+            font-size: 32px;
+        }
+        span {
+            color: #E60024;
+        }
+
+        input::placeholder {
+            font-style: italic;
+            opacity: 0.5;
+        }
+
+        #email, #password {
+            background-color: #FFFFFF;
+            border: 2px solid #CDCDCD;
+            border-radius: 16px;
+            height: 32px;
+            padding: 8px 12px;
+            width: 75%;
+        }
+
+        #email:hover, #password:hover {
+            border-color: #7AC5FF;
+            border-width: 4px;
+            margin-bottom: -4px;
+        }
+        #email:focus, #password:focus {
+            border-color: #000000
+        }
+
+        #email {
+            margin-top: 64px;
+        }
+
+        #password {
+            margin-top: 48px;
+        }
+        .forgot-password {
+            text-align: left;
+            padding-left: 12.5%
+        }
+
+        .forgot-password:hover {
+            color: #E60024;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        #login, #register {
+            background-color: #E60024;
+            border: 2px solid #DEDEDE;
+            border-radius: 16px;
+            color: #FFFFFF;
+            font-size: 16px;
+            height: 48px;
+            padding: 8px 12px;
+            width: 75%;
+        }
+
+        #login:hover {
+            background-color: #F70034;
+            cursor: pointer;
+        }
+
+        .or {
+            font-size: 24px;
+        }
+
+        #register {
+            background-color: #EFEFEF;
+            color: #000000;
+        }
+
+        #register:hover {
+            background-color: #FEFEFE;
+            cursor: pointer;
+        }
+        .error {
+            color: #F70034;
+            margin-top: 10%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+
+    </header>
+    <section>
+        <div class="form-container">
+            <h1>Expenses Reimbursement System</h1>
+            <h4>LOG<span>IN</span></h4>
+            <form id="login-form" action="http://localhost:8000/" method="POST">
+                <input id="email" type="email" placeholder="Email" required/>
+                <br />
+    
+                <input id="password" type="password" placeholder="Password" required/>
+                <p class="forgot-password">Lost your password?</p>
+                <button id="login" type="submit">Login</button>
+                <p class="or">or</p>
+                <button id="register" type="button">Register An Account</button>
+            </form>
+            <p class="error" style="display:none"></p>
+        </div>
+        
+    </section>
+    <footer>
+
+    </footer>
+    <script> 
+        // window.addEventListener("error", (error) => {
+        //     console.log(error);
+        // });
+        function login(event) {
+            // event.preventDefalt();
+            const email = document.getElementById('email');
+            const password = document.getElementById('password');
+            
+            const data = { email: email.value,
+                           password: password.value,
+            };
+            const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
+            const options = {
+                method: 'POST',
+                redirect: 'follow',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': content_length,
+                    'Accept': "*/*",
+                    'Accept-Encoding': ['gzip', 'deflate', 'br'],
+                    'Connection': "keep-alive",
+                },
+                body: JSON.stringify(data),
+            };
+            fetch(`http://localhost:8000/`, options)
+            .then ( (res) => {
+                    if(res.ok) {
+                        window.location.href = res.url;
+                        console.log(res);
+                        return;
+                    }
+                    else return res.text();
+            })
+            .then ( (text) => {
+                const div = document.getElementsByClassName('form-container')[0];
+                const error = document.getElementsByClassName('error')[0];
+                switch(text) {
+                    case "BadEmail":
+                        console.log("BadEmail");
+                        error.innerHTML = "Inncorrect Email";
+                        error.style.display = "block";
+                        break;
+                    case "BadPassword":
+                        console.log("BadPassword");
+                        error.innerHTML = "Inncorrect Password";
+                        error.style.display = "block";
+                        break;
+                    default:
+                        break;
+                }
+            })
+            // .then( (res) => {
+            //     if(res.ok) console.log(res);
+            //     else console.log("Bad Response");
+            // })
+            .catch(error => {
+                console.log("Error Reading data " + error);
+            });
+        }
+        
+        function onload() {
+            const form = document.getElementById('login-form');
+            form.addEventListener('submit', login);
+        }
+        addEventListener('DOMContentLoaded', onload);
+       
+    </script>
+</body>
+</html>

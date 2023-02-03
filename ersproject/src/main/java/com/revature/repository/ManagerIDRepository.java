@@ -12,7 +12,8 @@ import java.util.List;
  * @author Treyvon Whitaker
  *         <p>
  *         This class handles the interactions with the managerIDs table of the
- *         database.
+ *         database. It implements the generic <code>DOA</code> interface
+ *         {@link Repository}.
  *         </p>
  *         See Also:
  *         <ul>
@@ -21,8 +22,29 @@ import java.util.List;
  *         </ul>
  *         for more information on other repositories.
  */
-public class ManagerIDRepository {
+public class ManagerIDRepository implements Repository<Integer> {
 
+    /**
+     * <p>
+     * This method saves a {@link Employee} object to a file at FILEPATH.
+     * </p>
+     * 
+     * @param employee the object to be saved
+     */
+    @Override
+    public void saveToFile(Integer employee) {
+    }
+
+    /**
+     * <p>
+     * This method adds a new {@link Employee} object to the database.
+     * </p>
+     * 
+     * @param employee the object to be added
+     */
+    @Override
+    public void saveToRepository(Integer employee) {
+    }
     /**
      * <p>
      * This method gets all managerIDs in the database and returns them as a
@@ -31,7 +53,8 @@ public class ManagerIDRepository {
      * 
      * @return the {@link List} of objects
      */
-    public List<Integer> getAllManagerIDs() {
+    @Override
+    public List<Integer> getAllObjects() {
         String sql = "SELECT * FROM managerIDs";
         List<Integer> listManagerIDs = new ArrayList<Integer>();
 
@@ -48,5 +71,31 @@ public class ManagerIDRepository {
         }
 
         return listManagerIDs;
+    }
+
+    /**
+     * <p>
+     * This method gets all employee emails in the database and 
+     * returns them as a {@link List} of {@link String} objects.
+     * </p>
+     * 
+     * @return the {@link List} of objects
+     */
+    @Override
+    public List<String> getAllColumnString(String column) {
+        return null;
+    }
+
+    /**
+     * <p>
+     * This method gets all employee emails in the database and 
+     * returns them as a {@link List} of {@link Integer} objects.
+     * </p>
+     * 
+     * @return the {@link List} of objects
+     */
+    @Override
+    public List<Integer> getAllColumnInteger(String column) {
+        return null;
     }
 }

@@ -9,7 +9,8 @@ import org.codehaus.jackson.map.ObjectMapper;
  * @author Treyvon Whitaker
  *         <p>
  *         This class handles the intermediary behaviors between the controller
- *         and the database for the managerIDs.
+ *         and the database for the managerIDs. It implements the generic
+ *         <code>DOA</code> interface {@link Service}.
  *         </p>
  *         See Also:
  *         <ul>
@@ -18,7 +19,19 @@ import org.codehaus.jackson.map.ObjectMapper;
  *         </ul>
  *         for more information on other services.
  */
-public class ManagerIDService {
+public class ManagerIDService implements Service<Integer>{
+
+    /**
+     * <p>
+     * This method save a {@link Manager} object formated in <code>JSON</code> to
+     * the database.
+     * </p>
+     * 
+     * @param managerJson the <code>JSON</code> object to be added to the database
+     */
+    @Override
+    public void saveToRepository(String managerJson) {
+    }
 
     /**
      * <p>
@@ -28,9 +41,38 @@ public class ManagerIDService {
      * 
      * @return the {@link List} of objects
      */
-    public List<Integer> getAllManagerIDs() {
+    @Override
+    public List<Integer> getAllObjects() {
         ManagerIDRepository repository = new ManagerIDRepository();
-        return repository.getAllManagerIDs();
+        return repository.getAllObjects();
+    }
+
+    /**
+     * <p>
+     * This method gets all entries of a column where the entry is a
+     * <code>String</code> in the database and returns them as a
+     * {@link List} of {@link String} objects.
+     * </p>
+     * 
+     * @return the {@link List} of objects
+     */
+    @Override
+    public List<String> getAllColumnString(String column) {
+        return null;
+    }
+
+    /**
+     * <p>
+     * This method gets all entries of a column where the entry is a
+     * <code>Integer</code> in the database and returns them as a
+     * {@link List} of {@link Integer} objects.
+     * </p>
+     * 
+     * @return the {@link List} of objects
+     */
+    @Override
+    public List<Integer> getAllColumnInteger(String column) {
+        return null;
     }
 
     /**
@@ -42,6 +84,7 @@ public class ManagerIDService {
      * @param the {@link List} of objects
      * @return the <code>JSON</code> formated string
      */
+    @Override
     public String listToJSON(List<Integer> listManagers) {
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = "";

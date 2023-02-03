@@ -10,7 +10,8 @@ import org.codehaus.jackson.map.ObjectMapper;
  * @author Treyvon Whitaker
  *         <p>
  *         This class handles the intermediary behaviors between the controller
- *         and the database for the managers.
+ *         and the database for the managers. It implements the generic
+ *         <code>DOA</code> interface {@link Service}.
  *         </p>
  *         See Also:
  *         <ul>
@@ -19,7 +20,7 @@ import org.codehaus.jackson.map.ObjectMapper;
  *         </ul>
  *         for more information on other services.
  */
-public class ManagerService {
+public class ManagerService implements Service<Manager> {
 
     /**
      * <p>
@@ -29,6 +30,7 @@ public class ManagerService {
      * 
      * @param managerJson the <code>JSON</code> object to be added to the database
      */
+    @Override
     public void saveToRepository(String managerJson) {
         ManagerRepository repository = new ManagerRepository();
         ObjectMapper mapper = new ObjectMapper();
@@ -50,9 +52,40 @@ public class ManagerService {
      * 
      * @return the {@link List} of objects
      */
-    public List<Manager> getAllManagers() {
+    @Override
+    public List<Manager> getAllObjects() {
         ManagerRepository repository = new ManagerRepository();
-        return repository.getAllManagers();
+        return repository.getAllObjects();
+    }
+
+    /**
+     * <p>
+     * This method gets all entries of a column where the entry is a
+     * <code>String</code> in the database and returns them as a
+     * {@link List} of {@link String} objects.
+     * </p>
+     * 
+     * @return the {@link List} of objects
+     */
+    @Override
+    public List<String> getAllColumnString(String column) {
+        ManagerRepository repository = new ManagerRepository();
+        return repository.getAllColumnString(column);
+    }
+
+    /**
+     * <p>
+     * This method gets all entries of a column where the entry is a
+     * <code>Integer</code> in the database and returns them as a
+     * {@link List} of {@link Integer} objects.
+     * </p>
+     * 
+     * @return the {@link List} of objects
+     */
+    @Override
+    public List<Integer> getAllColumnInteger(String column) {
+        ManagerRepository repository = new ManagerRepository();
+        return repository.getAllColumnInteger(column);
     }
 
     /**
@@ -64,6 +97,7 @@ public class ManagerService {
      * @param the {@link List} of objects
      * @return the <code>JSON</code> formated string
      */
+    @Override
     public String listToJSON(List<Manager> listManagers) {
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = "";

@@ -12,7 +12,6 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -65,14 +64,11 @@ public class EmployeeRegister implements HttpHandler {
 
             // Get all Employees currently in database
             EmployeeService service = new EmployeeService();
-            List<Employee> listEmployees = service.getAllEmployees();
 
             // Search if client login email is in database
             // If it is send a Back Request RCODE back to client
-            List<String> listEmails = new ArrayList<String>();
-            for (Employee e : listEmployees) {
-                listEmails.add(e.getEmail());
-            }
+            List<String> listEmails = service.getAllColumnString("email");
+            
             int index = Collections.binarySearch(listEmails, newEmployee.getEmail());
 
             // Add client login to database
@@ -89,6 +85,7 @@ public class EmployeeRegister implements HttpHandler {
                 exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
                 os.write(response.getBytes());
             }
+            os.flush();
             os.close();
 
         } catch (IOException e) {

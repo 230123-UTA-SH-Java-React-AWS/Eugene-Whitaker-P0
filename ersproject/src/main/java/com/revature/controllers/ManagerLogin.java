@@ -13,7 +13,6 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -47,7 +46,7 @@ public class ManagerLogin implements HttpHandler {
      * 
      * @param exchange the exchange captured by the server
      */
-    private void getRequest(HttpExchange exchange) {
+    private void postRequest(HttpExchange exchange) {
         // Read in login information from client
         InputStream is = exchange.getRequestBody();
         StringBuilder textBuilder = new StringBuilder();
@@ -66,7 +65,7 @@ public class ManagerLogin implements HttpHandler {
 
             // Get all ManagerIDs currently in database
             ManagerIDService IDservice = new ManagerIDService();
-            List<Integer> listManagerIDs = IDservice.getAllManagerIDs();
+            List<Integer> listManagerIDs = IDservice.getAllObjects();
 
             // Search if client login managerID is in managerIDs table of the database
             // If it is send a Back Request RCODE back to client
@@ -82,14 +81,12 @@ public class ManagerLogin implements HttpHandler {
             } else {
                 // Get all Managers currently in database
                 ManagerService service = new ManagerService();
-                List<Manager> listManagers = service.getAllManagers();
+                List<Manager> listManagers = service.getAllObjects();
 
                 // Search if client login email is in database
                 // If it is send a Back Request RCODE back to client
-                List<String> listEmails = new ArrayList<String>();
-                for (Manager e : listManagers) {
-                    listEmails.add(e.getEmail());
-                }
+                List<String> listEmails = service.getAllColumnString("email");
+                
                 index = Collections.binarySearch(listEmails, newManager.getEmail());
 
                 // Check if password match to what is in database
@@ -111,6 +108,7 @@ public class ManagerLogin implements HttpHandler {
                     }
                 }
             }
+            os.flush();
             os.close();
 
         } catch (IOException e) {
@@ -130,8 +128,8 @@ public class ManagerLogin implements HttpHandler {
         String verb = exchange.getRequestMethod();
 
         switch (verb) {
-            case "GET":
-                getRequest(exchange);
+            case "POST":
+                postRequest(exchange);
                 break;
             default:
                 break;

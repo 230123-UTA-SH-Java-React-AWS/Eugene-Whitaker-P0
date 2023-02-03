@@ -4,7 +4,6 @@ package com.revature.model;
  * @author Treyvon Whitaker
  *         <p>
  *         This abstract class houses the information relative to all accounts.
- *         It implements the {@link Ticket} interface.
  *         </p>
  *         See Also:
  *         <ul>
@@ -13,7 +12,7 @@ package com.revature.model;
  *         </ul>
  *         for more information on specific account models.
  */
-public abstract class Account implements Ticket {
+public abstract class Account {
     private String email;
     private String password;
 

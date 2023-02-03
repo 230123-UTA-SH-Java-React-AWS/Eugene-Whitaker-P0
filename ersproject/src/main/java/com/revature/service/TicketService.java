@@ -1,7 +1,8 @@
 package com.revature.service;
 
 import com.revature.model.Employee;
-import com.revature.repository.EmployeeRepository;
+import com.revature.model.Ticket;
+import com.revature.repository.TicketRepository;
 import java.io.IOException;
 import java.util.List;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -22,26 +23,39 @@ import org.codehaus.jackson.map.ObjectMapper;
  *         </ul>
  *         for more information on other services.
  */
-public class EmployeeService implements Service<Employee> {
+public class TicketService implements Service<Ticket> {
 
      /**
      * <p>
-     * This method save a {@link Employee} object formated in <code>JSON</code> to
+     * This method save a {@link Ticket} object formated in <code>JSON</code> to
      * the database.
      * </p>
      * 
-     * @param employeeJson the <code>JSON</code> object to be added to the database
+     * @param ticketJson the <code>JSON</code> object to be added to the database
      */
     @Override
-    public void saveToRepository(String employeeJson) {
-        EmployeeRepository repository = new EmployeeRepository();
-        ObjectMapper mapper = new ObjectMapper();
-        System.out.println(employeeJson);
-        try {
-            Employee newEmployee = mapper.readValue(employeeJson, Employee.class);
+    public void saveToRepository(String ticketJson) {
+        // TicketRepository repository = new TicketRepository();
+        // ObjectMapper mapper = new ObjectMapper();
+        // System.out.println(ticketJson);
+        // try {
+        //     Ticket newTicket = mapper.readValue(ticketJson, Ticket.class);
 
-            repository.saveToRepository(newEmployee);
-        } catch (IOException e) {
+        //     repository.saveToRepository(newTicket);
+        // } catch (IOException e) {
+        //     e.printStackTrace();
+        // }
+    }
+
+    public void saveToRepository(String ticketJson, Employee employee) {
+        TicketRepository repository = new TicketRepository();
+        ObjectMapper mapper = new ObjectMapper();
+        System.out.println(ticketJson);
+        try {
+            Ticket newTicket = mapper.readValue(ticketJson, Ticket.class);
+
+            repository.saveToRepository(newTicket, employee);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -55,8 +69,8 @@ public class EmployeeService implements Service<Employee> {
      * @return the {@link List} of objects
      */
     @Override
-    public List<Employee> getAllObjects() {
-        EmployeeRepository repository = new EmployeeRepository();
+    public List<Ticket> getAllObjects() {
+        TicketRepository repository = new TicketRepository();
         return repository.getAllObjects();
     }
 
@@ -71,8 +85,9 @@ public class EmployeeService implements Service<Employee> {
      */
     @Override
     public List<String> getAllColumnString(String column) {
-        EmployeeRepository repository = new EmployeeRepository();
-        return repository.getAllColumnString(column);
+        // EmployeeRepository repository = new EmployeeRepository();
+        // return repository.getAllColumnString(column);
+        return null;
     }
 
     /**
@@ -86,8 +101,9 @@ public class EmployeeService implements Service<Employee> {
      */
     @Override
     public List<Integer> getAllColumnInteger(String column) {
-        EmployeeRepository repository = new EmployeeRepository();
-        return repository.getAllColumnInteger(column);
+        // EmployeeRepository repository = new EmployeeRepository();
+        // return repository.getAllColumnInteger(column);
+        return null;
     }
 
     /**
@@ -100,12 +116,12 @@ public class EmployeeService implements Service<Employee> {
      * @return the <code>JSON</code> formated string
      */
     @Override
-    public String listToJSON(List<Employee> listEmployees) {
+    public String listToJSON(List<Ticket> listTickets) {
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = "";
 
         try {
-            jsonString = mapper.writeValueAsString(listEmployees);
+            jsonString = mapper.writeValueAsString(listTickets);
         } catch (IOException e) {
             e.printStackTrace();
         }

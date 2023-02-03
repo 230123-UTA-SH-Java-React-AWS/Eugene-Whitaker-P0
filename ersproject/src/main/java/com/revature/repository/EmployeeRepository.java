@@ -19,7 +19,8 @@ import org.codehaus.jackson.map.ObjectMapper;
  * @author Treyvon Whitaker
  *         <p>
  *         This class handles the interactions with the employee table of the
- *         database.
+ *         database. It implements the generic <code>DOA</code> interface
+ *         {@link Repository}.
  *         </p>
  *         See Also:
  *         <ul>
@@ -28,7 +29,7 @@ import org.codehaus.jackson.map.ObjectMapper;
  *         </ul>
  *         for more information on other repositories.
  */
-public class EmployeeRepository {
+public class EmployeeRepository implements Repository<Employee> {
     private static final String FILEPATH = "ersproject/src/main/java/com/revature/repository/employee.json";
 
     /**
@@ -36,8 +37,9 @@ public class EmployeeRepository {
      * This method saves a {@link Employee} object to a file at FILEPATH.
      * </p>
      * 
-     * @param manager the object to be saved
+     * @param employee the object to be saved
      */
+    @Override
     public void saveToFile(Employee employee) {
         ObjectMapper mapper = new ObjectMapper();
         String jsonObject = "";
@@ -48,8 +50,10 @@ public class EmployeeRepository {
             FileWriter writer;
             // If the file doesn't exist then create it and write to it
             // Otherwise append it and write to it
-            if (employeeFile.createNewFile()) writer = new FileWriter(FILEPATH);
-            else writer = new FileWriter(FILEPATH, true);
+            if (employeeFile.createNewFile())
+                writer = new FileWriter(FILEPATH);
+            else
+                writer = new FileWriter(FILEPATH, true);
 
             BufferedWriter bufferedWriter = new BufferedWriter(writer);
             bufferedWriter.write(jsonObject);
@@ -65,8 +69,9 @@ public class EmployeeRepository {
      * This method adds a new {@link Employee} object to the database.
      * </p>
      * 
-     * @param manager the object to be added
+     * @param employee the object to be added
      */
+    @Override
     public void saveToRepository(Employee employee) {
         String sql = "INSERT INTO employee (email, pass) VALUES (?, ?)";
 
@@ -77,7 +82,7 @@ public class EmployeeRepository {
 
             prstmt.execute();
             System.out.println("Number of Rows updated: " + prstmt.getUpdateCount());
-            
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -91,7 +96,8 @@ public class EmployeeRepository {
      * 
      * @return the {@link List} of objects
      */
-    public List<Employee> getAllEmployees() {
+    @Override
+    public List<Employee> getAllObjects() {
         String sql = "SELECT * FROM employee";
         List<Employee> listEmployees = new ArrayList<Employee>();
 
@@ -104,14 +110,80 @@ public class EmployeeRepository {
                 Employee newEmployee = new Employee();
                 newEmployee.setEmail(rs.getString(2));
                 newEmployee.setPassword(rs.getString(3));
-                
+
                 listEmployees.add(newEmployee);
             }
-            
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
         return listEmployees;
+    }
+
+    /**
+     * <p>
+     * This method gets all entries of a column where the entry is a
+     * <code>String</code> in the database and returns them as a
+     * {@link List} of {@link String} objects.
+     * </p>
+     * 
+     * @return the {@link List} of objects
+     */
+    @Override
+    public List<String> getAllColumnString(String column) {
+        String sql = "SELECT "+column+" FROM employee";
+        List<String> listEmails = new ArrayList<String>();
+
+        try (Connection connection = ConnectionUtil.getConnection()) {
+            Statement stmt = connection.createStatement();
+
+            ResultSet rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                String newEmail = new String();
+                newEmail = rs.getString(1);
+
+                listEmails.add(newEmail);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return listEmails;
+    }
+
+    /**
+     * <p>
+     * This method gets all entries of a column where the entry is a
+     * <code>Integer</code> in the database and returns them as a
+     * {@link List} of {@link Integer} objects.
+     * </p>
+     * 
+     * @return the {@link List} of objects
+     */
+    @Override
+    public List<Integer> getAllColumnInteger(String column) {
+        String sql = "SELECT "+column+" FROM employee";
+        List<Integer> listEmails = new ArrayList<Integer>();
+
+        try (Connection connection = ConnectionUtil.getConnection()) {
+            Statement stmt = connection.createStatement();
+
+            ResultSet rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                Integer newEmail;
+                newEmail = rs.getInt(1);
+
+                listEmails.add(newEmail);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return listEmails;
     }
 }

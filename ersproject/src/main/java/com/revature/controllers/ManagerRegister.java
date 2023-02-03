@@ -65,7 +65,7 @@ public class ManagerRegister implements HttpHandler {
 
             // Get all ManagerIDs currently in database
             ManagerIDService IDservice = new ManagerIDService();
-            List<Integer> listManagerIDs = IDservice.getAllManagerIDs();
+            List<Integer> listManagerIDs = IDservice.getAllObjects();
 
             // Search if client login managerID is in managerIDs table of the database
             // If it is send a Back Request RCODE back to client
@@ -80,14 +80,12 @@ public class ManagerRegister implements HttpHandler {
             } else {
                 // Get all Managers currently in database
                 ManagerService service = new ManagerService();
-                List<Manager> listManagers = service.getAllManagers();
+                List<Manager> listManagers = service.getAllObjects();
 
                 // Search if client login managerID is in manager table of the database
                 // If it is send a Back Request RCODE back to client
-                List<Integer> listIDs = new ArrayList<Integer>();
-                for (Manager e : listManagers) {
-                    listIDs.add(e.getManagerID());
-                }
+                List<Integer> listIDs = service.getAllColumnInteger("ID");
+            
                 index = Collections.binarySearch(listIDs, newManager.getManagerID());
                 if (index < 0) {
                     // Search if client login email is in database
@@ -116,6 +114,7 @@ public class ManagerRegister implements HttpHandler {
                     os.write(response.getBytes());
                 }
             }
+            os.flush();
             os.close();
 
         } catch (IOException e) {

@@ -19,7 +19,8 @@ import org.codehaus.jackson.map.ObjectMapper;
  * @author Treyvon Whitaker
  *         <p>
  *         This class handles the interactions with the manager table of the
- *         database.
+ *         database. It implements the generic <code>DOA</code> interface
+ *         {@link Repository}.
  *         </p>
  *         See Also:
  *         <ul>
@@ -28,7 +29,7 @@ import org.codehaus.jackson.map.ObjectMapper;
  *         </ul>
  *         for more information on other repositories.
  */
-public class ManagerRepository {
+public class ManagerRepository implements Repository<Manager>{
     private static final String FILEPATH = "ersproject/src/main/java/com/revature/repository/manager.json";
 
     /**
@@ -38,6 +39,7 @@ public class ManagerRepository {
      * 
      * @param manager the object to be saved
      */
+    @Override
     public void saveToFile(Manager manager) {
         ObjectMapper mapper = new ObjectMapper();
         String jsonObject = "";
@@ -69,6 +71,7 @@ public class ManagerRepository {
      * 
      * @param manager the object to be added
      */
+    @Override
     public void saveToRepository(Manager manager) {
         String sql = "INSERT INTO manager (ID, email, pass) VALUES (?, ?, ?)";
 
@@ -95,7 +98,8 @@ public class ManagerRepository {
      * 
      * @return the {@link List} of objects
      */
-    public List<Manager> getAllManagers() {
+    @Override
+    public List<Manager> getAllObjects() {
         String sql = "SELECT * FROM manager";
         List<Manager> listManagers = new ArrayList<Manager>();
 
@@ -118,5 +122,71 @@ public class ManagerRepository {
         }
 
         return listManagers;
+    }
+
+    /**
+     * <p>
+     * This method gets all entries of a column where the entry is a
+     * <code>String</code> in the database and returns them as a
+     * {@link List} of {@link String} objects.
+     * </p>
+     * 
+     * @return the {@link List} of objects
+     */
+    @Override
+    public List<String> getAllColumnString(String column) {
+        String sql = "SELECT "+column+" FROM manager";
+        List<String> listEmails = new ArrayList<String>();
+
+        try (Connection connection = ConnectionUtil.getConnection()) {
+            Statement stmt = connection.createStatement();
+
+            ResultSet rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                String newEntry = new String();
+                newEntry = rs.getString(1);
+
+                listEmails.add(newEntry);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return listEmails;
+    }
+
+    /**
+     * <p>
+     * This method gets all entries of a column where the entry is a
+     * <code>Integer</code> in the database and returns them as a
+     * {@link List} of {@link Integer} objects.
+     * </p>
+     * 
+     * @return the {@link List} of objects
+     */
+    @Override
+    public List<Integer> getAllColumnInteger(String column) {
+        String sql = "SELECT "+column+" FROM manager";
+        List<Integer> listEmails = new ArrayList<Integer>();
+
+        try (Connection connection = ConnectionUtil.getConnection()) {
+            Statement stmt = connection.createStatement();
+
+            ResultSet rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                Integer newEntry;
+                newEntry = rs.getInt(1);
+
+                listEmails.add(newEntry);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return listEmails;
     }
 }
