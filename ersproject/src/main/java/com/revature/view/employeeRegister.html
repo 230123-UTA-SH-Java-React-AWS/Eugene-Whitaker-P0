@@ -39,7 +39,7 @@
             opacity: 0.5;
         }
 
-        #email, #password {
+        #email, #password, #verify {
             background-color: #FFFFFF;
             border: 2px solid #CDCDCD;
             border-radius: 16px;
@@ -48,12 +48,12 @@
             width: 75%;
         }
 
-        #email:hover, #password:hover {
+        #email:hover, #password:hover, #verify:hover {
             border-color: #7AC5FF;
             border-width: 4px;
             margin-bottom: -4px;
         }
-        #email:focus, #password:focus {
+        #email:focus, #password:focus, #verify:focus {
             border-color: #000000
         }
 
@@ -62,20 +62,14 @@
         }
 
         #password {
-            margin-top: 48px;
-        }
-        .forgot-password {
-            text-align: left;
-            padding-left: 12.5%
+            margin-top: 32px;
         }
 
-        .forgot-password:hover {
-            color: #E60024;
-            cursor: pointer;
-            text-decoration: underline;
+        #verify {
+            margin-top: 16px;
         }
 
-        #login, #register, #manager-login {
+        #register, #login, #manager-login {
             background-color: #E60024;
             border: 2px solid #DEDEDE;
             border-radius: 16px;
@@ -86,7 +80,11 @@
             width: 75%;
         }
 
-        #login:hover {
+        #register {
+            margin-top: 16px;
+        }
+
+        #register:hover {
             background-color: #F70034;
             cursor: pointer;
         }
@@ -95,12 +93,12 @@
             font-size: 24px;
         }
 
-        #register, #manager-login {
+        #login, #manager-login {
             background-color: #EFEFEF;
             color: #000000;
         }
 
-        #register:hover, #manager-login:hover {
+        #login:hover, #manager-login:hover {
             background-color: #FEFEFE;
             cursor: pointer;
         }
@@ -110,7 +108,7 @@
         }
         #error {
             color: #F70034;
-            margin-top: 10%;
+            margin-bottom: 0;
         }
     </style>
 </head>
@@ -121,20 +119,15 @@
     <section>
         <div class="form-container">
             <h1>Expenses Reimbursement System</h1>
-            <h4>EMPLOYEE <span>LOGIN</span></h4>
-            <form id="login-form">
+            <h4>EMPLOYEE <span>REGISTRATION</span></h4>
+            <form id="register-form">
                 <input id="email" type="email" placeholder="Email" required/>
                 <input id="password" type="password" placeholder="Password" required/>
-
-                <p class="forgot-password">Lost your password?</p>
-
+                <input id="verify" type="password" placeholder="Re-enter Password" required/> 
                 <br />
-                
-                <button id="login" type="submit">Login</button>
-
+                <button id="register" type="submit">Register</button>
                 <p class="or">or</p>
-
-                <button id="register" type="button">Register An Account</button>
+                <button id="login" type="button">Back to Login</button>
                 <button id="manager-login" type="button">Login As Manager</button>
             </form>
             <p id="error" style="display:none"></p>
@@ -145,60 +138,59 @@
 
     </footer>
     <script defer> 
-        function login() {
-
+        function register() {
             const email = document.getElementById('email');
             const password = document.getElementById('password');
-            
-            const data = { email: email.value,
+            const verify = document.getElementById('verify');
+            const error = document.getElementById('error');
+            if (password.value == verify.value) {
+                const data = { email: email.value,
                            password: password.value,
-            };
+                };
 
-            const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
+                const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
 
-            const options = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': content_length,
-                },
-                body: JSON.stringify(data),
-            };
-
-            fetch(`http://localhost:8000/employeeLogin`, options)
-            .then ( (response) => {
-                    if(response.ok) window.location.href = response.url;
+                const options = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': content_length,
+                    },
+                    body: JSON.stringify(data),
+                };
+                fetch(`http://localhost:8000/employeeRegister`, options)
+                .then ( (response) => {
+                    if (response.ok) window.location.href = response.url;
                     else return response.text();
-            })
-            .then ( (text) => {
-                const error = document.getElementById('error');
-                switch(text) {
-                    case "BADEMAIL":
-                        error.innerHTML = "Inncorrect Email";
-                        error.style.display = "block";
-                        break;
-                    case "BADPASS":
-                        error.innerHTML = "Inncorrect Password";
-                        error.style.display = "block";
-                        break;
-                    default:
-                        break;
-                }
-            })
-            .catch( (error) => {
-                console.error(error);
-            });
+                })
+                .then ( (text) => {
+                    switch(text) {
+                        case "BADEMAIL":
+                            error.innerHTML = "This Email is Already Registered"
+                            error.style.display = "block";
+                            break;
+                        default:
+                            break;
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+            } else {
+                error.innerHTML = "Your passwords do not match"
+                error.style.display = "block";
+            }
         }
         
         function onload() {
-            const form = document.getElementById('login-form');
+            const form = document.getElementById('register-form');
             form.addEventListener('submit', function(event) {
                 event.preventDefault();
-                login();
+                register();
             });
 
-            const register = document.getElementById('register');
-            register.addEventListener('click', function() {
+            const login = document.getElementById('login');
+            login.addEventListener('click', function() {
                 const options = {
                     method: 'GET',
                     headers: {
@@ -206,7 +198,7 @@
                     },
                 };
 
-                fetch(`http://localhost:8000/employeeRegister`, options)
+                fetch(`http://localhost:8000/employeeLogin`, options)
                 .then ( (response) => {
                     window.location.href = response.url;
                 })

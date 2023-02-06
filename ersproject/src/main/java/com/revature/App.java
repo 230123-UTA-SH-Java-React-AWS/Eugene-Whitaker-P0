@@ -4,6 +4,7 @@ import com.revature.controllers.EmployeeLogin;
 import com.revature.controllers.EmployeeRegister;
 import com.revature.controllers.ManagerLogin;
 import com.revature.controllers.ManagerRegister;
+import com.revature.controllers.ProcessTicket;
 import com.revature.controllers.SubmitTicket;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
@@ -47,12 +48,13 @@ public final class App {
             HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
 
             // Define each context
-            server.createContext("/", new EmployeeLogin());
+            // server.createContext("/", new EmployeeLogin());
             server.createContext("/employeeLogin", new EmployeeLogin());
             server.createContext("/employeeRegister", new EmployeeRegister());
             server.createContext("/managerLogin", new ManagerLogin());
             server.createContext("/managerRegister", new ManagerRegister());
             server.createContext("/submitTicket", new SubmitTicket());
+            server.createContext("/processTicket", new ProcessTicket());
 
             // Start the server
             server.setExecutor(null);

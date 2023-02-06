@@ -2,6 +2,7 @@ package com.revature.model;
 
 public class Ticket {
     private int ticketID;
+    private int employeeID;
     private float amount;
     private String description;
     private boolean pending;
@@ -31,6 +32,14 @@ public class Ticket {
 
     public void setTicketID(int ticketID) {
         this.ticketID = ticketID;
+    }
+
+    public int getEmployeeID() {
+        return this.employeeID;
+    }
+
+    public void setEmployeeID(int employeeID) {
+        this.employeeID = employeeID;
     }
 
     public float getAmount() {

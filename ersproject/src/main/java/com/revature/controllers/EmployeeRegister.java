@@ -2,18 +2,13 @@ package com.revature.controllers;
 
 import com.revature.model.Employee;
 import com.revature.service.EmployeeService;
+import com.revature.utils.StringBuilderUtil;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.Reader;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
+import java.nio.file.Files;
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
@@ -35,53 +30,49 @@ public class EmployeeRegister implements HttpHandler {
     
     // Global variable for the Return Codes
     private static final int RCODE_SUCCESSFUL = 200;
+    private static final int RCODE_REDIRECT = 301;
     private static final int RCODE_CLIENT_ERROR = 400;
 
+    private static final String BADEMAIL = "BADEMAIL";
+
+    private void getRequest(HttpExchange exchange) {
+        try {
+            File file = new File("ersproject/src/main/java/com/revature/view/employeeRegister.html"); 
+            OutputStream os = exchange.getResponseBody();
+            exchange.sendResponseHeaders(RCODE_SUCCESSFUL, file.length());
+            Files.copy(file.toPath(), os);
+            os.flush();
+            os.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
-     * <p>
-     * This method processes a <code>POST</code> request from the client to register
-     * a new employee account.
-     * </p>
+     * <p></p>
      * 
-     * @param exchange the exchange captured by the server
+     * @param exchange
      */
     private void postRequest(HttpExchange exchange) {
-        // Read in login information from client
-        InputStream is = exchange.getRequestBody();
-        StringBuilder textBuilder = new StringBuilder();
-        ObjectMapper mapper = new ObjectMapper();
-        try (Reader reader = new BufferedReader(
-                new InputStreamReader(is, Charset.forName(StandardCharsets.UTF_8.name())))) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            
+            StringBuilder textBuilder = StringBuilderUtil.buildString(exchange);
 
-            int c = 0;
-
-            while ((c = reader.read()) != -1) {
-                textBuilder.append((char) c);
-            }
-
-            // Convert client login from json to Employee object
             Employee newEmployee = mapper.readValue(textBuilder.toString(), Employee.class);
 
-            // Get all Employees currently in database
             EmployeeService service = new EmployeeService();
+            String clause = "email = "+"\'"+newEmployee.getEmail()+"\'";
+            Employee employee = service.getObjectsWhere(clause);
 
-            // Search if client login email is in database
-            // If it is send a Back Request RCODE back to client
-            List<String> listEmails = service.getAllColumnString("email");
-            
-            int index = Collections.binarySearch(listEmails, newEmployee.getEmail());
-
-            // Add client login to database
-            // Send OK RCODE back to client
             OutputStream os = exchange.getResponseBody();
             String response;
-            if (index < 0) {
+            if (employee.getEmail() == null) {
                 service.saveToRepository(textBuilder.toString());
-                response = "Account Registered";
-                exchange.sendResponseHeaders(RCODE_SUCCESSFUL, response.getBytes().length);
-                os.write(response.getBytes());
+                exchange.getResponseHeaders().add("Location", "http://localhost:8000/employeeLogin");
+                exchange.sendResponseHeaders(RCODE_REDIRECT, -1);
             } else {
-                response = "This Email Is Already Registered";
+                response = BADEMAIL;
                 exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
                 os.write(response.getBytes());
             }
@@ -94,17 +85,18 @@ public class EmployeeRegister implements HttpHandler {
     }
 
     /**
-     * <p>
-     * This method handles processing the "verbs" from the client.
-     * </p>
+     * <p></p>
      * 
-     * @param exchange the exchange captured by the server
+     * @param exchange
      */
     @Override
     public void handle(HttpExchange exchange) {
         String verb = exchange.getRequestMethod();
 
         switch (verb) {
+            case "GET":
+                getRequest(exchange);
+                break;
             case "POST":
                 postRequest(exchange);
                 break;

@@ -1,9 +1,7 @@
 package com.revature.service;
 
 import com.revature.repository.ManagerIDRepository;
-import java.io.IOException;
 import java.util.List;
-import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * @author Treyvon Whitaker
@@ -19,20 +17,7 @@ import org.codehaus.jackson.map.ObjectMapper;
  *         </ul>
  *         for more information on other services.
  */
-public class ManagerIDService implements Service<Integer>{
-
-    /**
-     * <p>
-     * This method save a {@link Manager} object formated in <code>JSON</code> to
-     * the database.
-     * </p>
-     * 
-     * @param managerJson the <code>JSON</code> object to be added to the database
-     */
-    @Override
-    public void saveToRepository(String managerJson) {
-    }
-
+public class ManagerIDService {
     /**
      * <p>
      * This method gets all managerIDs in the database and returns them as a
@@ -41,60 +26,14 @@ public class ManagerIDService implements Service<Integer>{
      * 
      * @return the {@link List} of objects
      */
-    @Override
+    
     public List<Integer> getAllObjects() {
         ManagerIDRepository repository = new ManagerIDRepository();
         return repository.getAllObjects();
     }
 
-    /**
-     * <p>
-     * This method gets all entries of a column where the entry is a
-     * <code>String</code> in the database and returns them as a
-     * {@link List} of {@link String} objects.
-     * </p>
-     * 
-     * @return the {@link List} of objects
-     */
-    @Override
-    public List<String> getAllColumnString(String column) {
-        return null;
-    }
-
-    /**
-     * <p>
-     * This method gets all entries of a column where the entry is a
-     * <code>Integer</code> in the database and returns them as a
-     * {@link List} of {@link Integer} objects.
-     * </p>
-     * 
-     * @return the {@link List} of objects
-     */
-    @Override
-    public List<Integer> getAllColumnInteger(String column) {
-        return null;
-    }
-
-    /**
-     * <p>
-     * This method converts a {@link List} of {@link Integer} objects to a
-     * <code>JSON</code> formated string.
-     * </p>
-     * 
-     * @param the {@link List} of objects
-     * @return the <code>JSON</code> formated string
-     */
-    @Override
-    public String listToJSON(List<Integer> listManagers) {
-        ObjectMapper mapper = new ObjectMapper();
-        String jsonString = "";
-
-        try {
-            jsonString = mapper.writeValueAsString(listManagers);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return jsonString;
+    public int getObjectsWhere(String clause) {
+        ManagerIDRepository repository = new ManagerIDRepository();
+        return repository.getObjectsWhere(clause);
     }
 }

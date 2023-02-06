@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERS Web App</title>
+    <style type="text/css">
+        body {
+            background-color: #1F1E1F;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+        }
+        section {
+            text-align: center;
+        }
+        .form-container {
+            background-color: #FFFFFF;
+            border-radius: 64px;
+            height: 768px;
+            margin: 32px auto;
+            max-width: 512px;
+            min-width: 384px;
+            padding: 16px;
+            width: 50%;
+        }
+        h1 {
+            font-size: 32px;
+        }
+        span {
+            color: #E60024;
+        }
+        .ticket-table {
+            border: 2px solid #000000;
+            text-align: center;
+            vertical-align: middle;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 8px;
+        }
+
+        .btn-approve {
+            background-color: #00F734;
+        }
+
+        .btn-deny {
+            background-color: #F70034;
+            margin-left: 8px;
+        }
+
+        .btn-approve:hover, .btn-deny:hover {
+            cursor: pointer;
+            border-style: dashed;
+        }
+
+        #refresh, #logout {
+            background-color: #E60024;
+            border: 2px solid #DEDEDE;
+            border-radius: 4px;
+            color: #FFFFFF;
+            font-size: 16px;
+            height: 32px;
+            padding: 8px 12px;
+            width: 96px; 
+        }
+
+        #refresh:hover, #logout:hover {
+            background-color: #F70034;
+            border-color: #000000;
+            cursor: pointer;
+        }
+
+        #processed {
+            color: #000000;
+        }
+
+        #logout {
+            margin-top: 20%;
+        }
+        
+    </style>
+</head>
+<body>
+    <header>
+
+    </header>
+    <section>
+        <div class="form-container">
+            <h1>Expenses Reimbursement System</h1>
+            <h4>PROCESS <span>TICKET</span></h4>
+            <table class=" ticket-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>EmployeeID</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody class="table-body">
+                </tbody>
+            </table>
+            
+            <p id="processed" style="display:none"></p>
+
+            <button id="refresh">Refresh</button>
+            <button id="logout" type="button">Log Out</button>
+        </div>
+        
+    </section>
+    <footer>
+
+    </footer>
+    <script defer> 
+        let email, password, managerID;
+
+        function getSiblings(element) {
+            let siblings = []; 
+
+            if(!element.parentNode) {
+                return siblings;
+            }
+
+            let sibling  = element.parentNode.firstChild;
+            
+            while (sibling) {
+                if (sibling.nodeType === 1 && sibling !== element) {
+                    siblings.push(sibling);
+                }
+                sibling = sibling.nextSibling;
+            }
+            return siblings;
+        };
+
+        function approveTicket() {
+            const element = event.target;
+            let ticketID, amount, description, status = "approved", pending = false;
+            
+            let siblings = getSiblings(element);
+            for(let i = 0; i < siblings.length; i++) {
+                let classes = siblings[i].classList;
+                for( let j = 0; j < classes.length; j++) {
+                    if ( classes[j] == "id") {
+                        ticketID = siblings[i].innerHTML;
+                    } else if ( classes[j] == "amt") {
+                        amount = siblings[i].innerHTML;
+                    } else if ( classes[j] == "desc") {
+                        description = siblings[i].innerHTML;
+                    }
+                }
+            }
+            const data = { 
+                ticketID: ticketID,
+                amount: amount,
+                description: description,
+                pending: pending,
+                status: status,
+            };
+
+            const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
+            const options = {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': content_length,
+                },
+                body: JSON.stringify(data),
+            };
+            fetch(`http://localhost:8000/processTickets`, options)
+            .then( (response) => {
+                if(response.ok) return response.text();
+            })
+            .then( (text) => {
+                const processed = document.getElementById('processed');
+                processed.innerHTML = "Ticket Successfully Processed";
+                processed.style.display = "block";
+            })
+        }
+
+        function denyTicket() {
+            const element = event.target;
+            let ticketID, amount, description, status = "denied", pending = false;
+            
+            let siblings = getSiblings(element);
+            for(let i = 0; i < siblings.length; i++) {
+                let classes = siblings[i].classList;
+                for( let j = 0; j < classes.length; j++) {
+                    if ( classes[j] == "id") {
+                        ticketID = siblings[i].innerHTML;
+                        console.log(ticketID);
+                    } else if ( classes[j] == "amt") {
+                        amount = siblings[i].innerHTML;
+                        console.log(amount);
+                    } else if ( classes[j] == "desc") {
+                        description = siblings[i].innerHTML;
+                        console.log(description);
+                    }
+                }
+            }
+            const data = { 
+                ticketID: ticketID,
+                amount: amount,
+                description: description,
+                pending: pending,
+                status: status,
+            };
+
+            const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
+            const options = {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': content_length,
+                },
+                body: JSON.stringify(data),
+            };
+            fetch(`http://localhost:8000/processTickets`, options)
+            .then( (response) => {
+                if(response.ok) return response.text();
+            })
+            .then( (text) => {
+                const processed = document.getElementById('processed');
+                processed.innerHTML = "Ticket Successfully Processed";
+                processed.style.display = "block";
+            })
+        }
+
+        function addEventListeners() {
+            let approveButtons = document.getElementsByClassName('btn-approve');
+            for(let i = 0; i < approveButtons.length; i++) {
+                approveButtons[i].addEventListener('click', approveTicket);
+            }
+            let denyButtons = document.getElementsByClassName('btn-deny');
+            for(let j = 0; j < denyButtons.length; j++) {
+                denyButtons[j].addEventListener('click', denyTicket);
+            }
+        }
+
+        function getTickets() {
+            const data = { email: email,
+                           password: password,
+                           managerID: managerID,
+            };
+            const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': content_length,
+                },
+                body: JSON.stringify(data),
+            };
+            fetch(`http://localhost:8000/processTickets`, options)
+            .then((response) => response.json())
+            .then((data) => {
+                const table = document.getElementsByClassName('table-body')[0];
+                for (ticket of data) {
+                    const tRow = document.createElement('tr');
+
+                    const tDataID = document.createElement('td');
+                    tDataID.innerHTML = ticket.ticketID;
+                    tDataID.classList.add('id');
+                    tRow.appendChild(tDataID);
+                    const tDataEmployeeID = document.createElement('td');
+                    tDataEmployeeID.innerHTML = ticket.employeeID;
+                    tRow.appendChild(tDataEmployeeID);
+                    const tDataAmt = document.createElement('td');
+                    tDataAmt.innerHTML = ticket.amount;
+                    tDataAmt.classList.add('amt');
+                    tRow.appendChild(tDataAmt);
+                    const tDataDesc = document.createElement('td');
+                    tDataDesc.innerHTML = ticket.description;
+                    tDataDesc.classList.add('desc');
+                    tRow.appendChild(tDataDesc);
+                    const tDataApprove = document.createElement('button');
+                    tDataApprove.innerHTML = "Approve";
+                    tDataApprove.classList.add('btn-approve');
+                    tRow.appendChild(tDataApprove);
+                    const tDataDeny = document.createElement('button');
+                    tDataDeny.innerHTML = "Deny";
+                    tDataDeny.classList.add('btn-deny');
+                    tRow.appendChild(tDataDeny);
+        
+                    table.appendChild(tRow);
+                }
+                this.addEventListeners();
+            })
+            .catch( (error) => {
+                console.error(error);
+            });
+
+            
+        }
+        
+        function onload() {
+            const url = new URL(window.location.href);
+            email = url.searchParams.get('email');
+            password = url.searchParams.get('password');
+
+            getTickets();
+
+            const refresh = document.getElementById('refresh');
+            refresh.addEventListener('click', function() {
+                const options = {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                };
+
+                fetch(`http://localhost:8000/processTicket?email=${email}&password=${password}&managerid=${managerID}`, options)
+                .then ( (response) => {
+                    window.location.href = response.url;
+                })
+                .catch( (error) => {
+                    console.error(error);
+                });
+            });
+
+            const logout = document.getElementById('logout');
+            logout.addEventListener('click', function() {
+                const options = {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                };
+
+                fetch(`http://localhost:8000/managerLogin`, options)
+                .then ( (response) => {
+                    window.location.href = response.url;
+                })
+                .catch( (error) => {
+                    console.error(error);
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', onload);
+    </script>
+</body>
+</html>

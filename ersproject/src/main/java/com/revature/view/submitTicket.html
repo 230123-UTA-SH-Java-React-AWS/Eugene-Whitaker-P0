@@ -9,6 +9,7 @@
         body {
             background-color: #1F1E1F;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
             color: #333333;
             margin: 0;
             padding: 0;
@@ -32,77 +33,65 @@
         span {
             color: #E60024;
         }
+        .ticket-table {
+            border: 2px solid #000000;
+            text-align: center;
+            vertical-align: middle;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 8px;
+        }
+
+        #submit-form {
+            margin-top: 10%;
+        }
 
         input::placeholder {
             font-style: italic;
-            opacity: 0.5;
+            opacity: 0.5; 
         }
 
-        #email, #password {
+        #amount, #description {
             background-color: #FFFFFF;
             border: 2px solid #CDCDCD;
-            border-radius: 16px;
-            height: 32px;
+            border-radius: 8px;
+            height: 8px;
             padding: 8px 12px;
-            width: 75%;
+            width: 128px;
         }
-
-        #email:hover, #password:hover {
-            border-color: #7AC5FF;
-            border-width: 4px;
-            margin-bottom: -4px;
-        }
-        #email:focus, #password:focus {
+        #amount:focus, #description:focus {
             border-color: #000000
         }
 
-        #email {
-            margin-top: 64px;
+        #amount {
+            width: 96px;
         }
 
-        #password {
-            margin-top: 48px;
-        }
-        .forgot-password {
-            text-align: left;
-            padding-left: 12.5%
-        }
-
-        .forgot-password:hover {
-            color: #E60024;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        #login, #register {
+        #submit-ticket, #refresh, #logout {
             background-color: #E60024;
             border: 2px solid #DEDEDE;
-            border-radius: 16px;
+            border-radius: 4px;
             color: #FFFFFF;
             font-size: 16px;
-            height: 48px;
+            height: 32px;
             padding: 8px 12px;
-            width: 75%;
+            width: 96px; 
         }
 
-        #login:hover {
+        #submit-ticket:hover, #refresh:hover, #logout:hover {
             background-color: #F70034;
+            border-color: #000000;
             cursor: pointer;
         }
 
-        .or {
-            font-size: 24px;
-        }
-
-        #register {
-            background-color: #EFEFEF;
+        #added {
             color: #000000;
         }
 
-        #register:hover {
-            background-color: #FEFEFE;
-            cursor: pointer;
+        #logout {
+            margin-top: 20%;
         }
+        
     </style>
 </head>
 <body>
@@ -112,71 +101,162 @@
     <section>
         <div class="form-container">
             <h1>Expenses Reimbursement System</h1>
-            <h4>SUBMIT A<span>TICKET</span></h4>
-            
+            <h4>SUBMIT A <span>TICKET</span></h4>
+            <table class=" ticket-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody class="table-body">
+                </tbody>
+            </table>
+            <button id="refresh">Refresh</button>
+            <form id="submit-form">
+                <button id="submit-ticket" type="submit">Submit</button>
+                <input id="amount" type="text" placeholder="dollar amount" required/>
+                <input id="description" type="text" placeholder="description" required/>
+            </form>
+            <p id="added" style="display:none"></p>
+            <button id="logout" type="button">Log Out</button>
         </div>
         
     </section>
     <footer>
 
     </footer>
-    <script> 
-        // window.addEventListener("error", (error) => {
-        //     console.log(error);
-        // });
-        // function login(event) {
-        //     // event.preventDefalt();
-        //     const email = document.getElementById('email');
-        //     const password = document.getElementById('password');
-            
-        //     const data = { email: email.value,
-        //                    password: password.value,
-        //     };
-        //     const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
-        //     const options = {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //             'Content-Length': content_length,
-        //             //'Accept': '*/*',
-        //             //'Accept-Encoding': ['gzip', 'deflate', 'br'],
-        //             //'Connection': 'keep-alive',
-        //         },
-        //         body: JSON.stringify(data),
-        //     };
-        //     fetch(`http://localhost:8000/`, options)
-        //     .then ( (res) => res.text())
-        //     .then ( (text) => {
-        //         switch(text) {
-        //             case "Successful":
-        //                 console.log("Successful");
-        //                 break;
-        //             case "BadEmail":
-        //                 console.log("BadEmail");
-        //                 break;
-        //             case "BadPassword":
-        //                 console.log("BadPassword");
-        //                 break;
-        //             default:
-        //                 console.log("Error");
-        //                 break;
-        //         }
-        //     })
-        //     // .then( (res) => {
-        //     //     if(res.ok) console.log(res);
-        //     //     else console.log("Bad Response");
-        //     // })
-        //     .catch(error => {
-        //         console.log("Error Reading data " + error);
-        //     });
-        // }
+    <script defer> 
+        let email, password;
+
+        function submit() {
+            const amount = document.getElementById('amount');
+            const description = document.getElementById('description');
+
+            const data = {
+                amount: amount.value,
+                description: description.value, 
+            };
+
+            const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
+
+            const options = {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': content_length,
+                },
+                body: JSON.stringify(data),
+            };
+
+            fetch(`http://localhost:8000/submitTicket`, options)
+            .then( (response) => {
+                if(response.ok) return response.text();
+            })
+            .then( (text) => {
+                const added = document.getElementById('added');
+                added.innerHTML = "Ticket Added Successfully";
+                added.style.display = "block";
+            })
+            .catch( (error) => {
+                console.error(error);
+            });
+        }
+
+        function getTickets() {
+            const data = { email: email,
+                           password: password,
+            };
+            const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': content_length,
+                },
+                body: JSON.stringify(data),
+            };
+            fetch(`http://localhost:8000/submitTicket`, options)
+            .then((response) => response.json())
+            .then((data) => {
+                const table = document.getElementsByClassName('table-body')[0];
+                for (ticket of data) {
+                    const tRow = document.createElement('tr');
+
+                    const tDataID = document.createElement('td');
+                    tDataID.innerHTML = ticket.ticketID;
+                    tRow.appendChild(tDataID);
+                    const tDataAmt = document.createElement('td');
+                    tDataAmt.innerHTML = ticket.amount;
+                    tRow.appendChild(tDataAmt);
+                    const tDataDes = document.createElement('td');
+                    tDataDes.innerHTML = ticket.description;
+                    tRow.appendChild(tDataDes);
+                    const tDataStat = document.createElement('td');
+                    tDataStat.innerHTML = ticket.status;
+                    tRow.appendChild(tDataStat);
         
-        // function onload() {
-        //     const form = document.getElementById('login-form');
-        //     form.addEventListener('submit', login);
-        // }
-        // addEventListener('DOMContentLoaded', onload);
-       
+                    table.appendChild(tRow);
+                }
+            })
+            .catch( (error) => {
+                console.error(error);
+            });
+        }
+        
+        function onload() {
+            const url = new URL(window.location.href);
+            email = url.searchParams.get('email');
+            password = url.searchParams.get('password');
+
+            getTickets();
+
+            const refresh = document.getElementById('refresh');
+            refresh.addEventListener('click', function() {
+                const options = {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                };
+
+                fetch(`http://localhost:8000/submitTicket?email=${email}&password=${password}`, options)
+                .then ( (response) => {
+                    window.location.href = response.url;
+                })
+                .catch( (error) => {
+                    console.error(error);
+                });
+            });
+
+            const form = document.getElementById('submit-form');
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                submit();
+            });
+
+            const logout = document.getElementById('logout');
+            logout.addEventListener('click', function() {
+                const options = {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                };
+
+                fetch(`http://localhost:8000/employeeLogin`, options)
+                .then ( (response) => {
+                    window.location.href = response.url;
+                })
+                .catch( (error) => {
+                    console.error(error);
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', onload);
     </script>
 </body>
 </html>

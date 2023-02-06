@@ -1,6 +1,5 @@
 alter sequence employee_ID_seq restart with 1;
 
-drop table manager_ticket;
 drop table ticket;
 drop table employee;
 drop table manager;
@@ -36,7 +35,3 @@ create table ticket (
 );
 insert into ticket (employeeID, amount, description, pending, status) values (1, 100.00, 'test', true, 'pending');
 
-create table manager_ticket (
-	managerID integer references manager(ID) not null,
-	ticketID integer references ticket(ID) not null
-);

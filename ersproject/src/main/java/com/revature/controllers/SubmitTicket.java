@@ -2,25 +2,16 @@ package com.revature.controllers;
 
 import com.revature.model.Employee;
 import com.revature.model.Ticket;
-// import com.revature.service.EmployeeService;
+import com.revature.service.EmployeeService;
 import com.revature.service.TicketService;
+import com.revature.utils.StringBuilderUtil;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import java.io.BufferedReader;
 import java.io.File;
-// import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.Reader;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-
-// import java.nio.file.Files;
-// import java.util.Collections;
-// import java.util.List;
+import java.util.List;
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
@@ -41,14 +32,17 @@ import org.codehaus.jackson.map.ObjectMapper;
 public class SubmitTicket implements HttpHandler {
 
     // Global variable for the Return Codes
-    protected static final int RCODE_SUCCESSFUL = 200;
-    protected static final int RCODE_CLIENT_ERROR = 400;
-    
+    private static final int RCODE_SUCCESSFUL = 200;
+    // private static final int RCODE_CLIENT_ERROR = 400;
 
+    private static final String ADD = "ADD";
+
+    private Employee employee = new Employee();
+    
     // Add Doc
     private void getRequest(HttpExchange exchange) {
         try {
-            File file = new File("ersproject/src/main/java/com/revature/view/employeeLogin.html"); 
+            File file = new File("ersproject/src/main/java/com/revature/view/submitTicket.html"); 
             OutputStream os = exchange.getResponseBody();
             exchange.sendResponseHeaders(RCODE_SUCCESSFUL, file.length());
             Files.copy(file.toPath(), os);
@@ -58,59 +52,71 @@ public class SubmitTicket implements HttpHandler {
             e.printStackTrace();
         }
     }
-    /**
-     * <p>
-     * This method processes a <code>POST</code> request from the client to submit
-     * a {@link Ticket} using an existing account.
-     * </p>
-     * 
-     * @param exchange the exchange captured by the server
-     */
+
+    // Add doc
     private void postRequest(HttpExchange exchange) {
-        Employee employee = new Employee("test@test.com", "test");
-        employee.setEmployeeID(1);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            
+            StringBuilder textBuilder = StringBuilderUtil.buildString(exchange);
 
-        // Read in login information from client
-        InputStream is = exchange.getRequestBody();
-        StringBuilder textBuilder = new StringBuilder();
-        ObjectMapper mapper = new ObjectMapper();
-        try (Reader reader = new BufferedReader(
-                new InputStreamReader(is, Charset.forName(StandardCharsets.UTF_8.name())))) {
+            Employee findEmployee = mapper.readValue(textBuilder.toString(), Employee.class);
 
-            int c = 0;
+            EmployeeService service = new EmployeeService();
+            String clause = "email = "+"\'"+findEmployee.getEmail()+"\'";
+            Employee newEmployee = service.getObjectsWhere(clause);
 
-            while ((c = reader.read()) != -1) {
-                textBuilder.append((char) c);
-            }
-
-            // Convert client ticket from json to Ticket object
-            Ticket newTicket = mapper.readValue(textBuilder.toString(), Ticket.class);
-            // Make sure the Ticket is initialized properly
-            newTicket = new Ticket(newTicket);
-            String jsonString = mapper.writeValueAsString(newTicket);
+            this.employee.setEmployeeID(newEmployee.getEmployeeID());
+            this.employee.setEmail(newEmployee.getEmail());
+            this.employee.setPassword(newEmployee.getPassword());
 
             TicketService serviceTicket = new TicketService();
-            serviceTicket.saveToRepository(jsonString, employee);
+            clause = "employeeID = "+"\'"+employee.getEmployeeID()+"\'";
+            List<Ticket> tickets = serviceTicket.getAllObjectsWhere(clause);
+            String response = mapper.writeValueAsString(tickets);
 
-            // add ticket to database 
-            // Send OK response back to client
-            String response = "Ticket Successfully Added";
-            exchange.sendResponseHeaders(RCODE_SUCCESSFUL, response.getBytes().length);OutputStream os = exchange.getResponseBody();
+            exchange.sendResponseHeaders(RCODE_SUCCESSFUL, response.getBytes().length);
+            OutputStream os = exchange.getResponseBody();
             os.write(response.getBytes());
-            os.flush();
             os.close();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+    /**
+     * <p></p>
+     * 
+     * @param exchange
+     */
+    private void putRequest(HttpExchange exchange) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            
+            StringBuilder textBuilder = StringBuilderUtil.buildString(exchange);
+ 
+            Ticket newTicket = mapper.readValue(textBuilder.toString(), Ticket.class);
+
+            newTicket = new Ticket(newTicket);
+            String jsonString = mapper.writeValueAsString(newTicket);
+
+            TicketService serviceTicket = new TicketService();
+            serviceTicket.saveToRepository(jsonString, this.employee);
+
+            OutputStream os = exchange.getResponseBody();
+            String response = ADD;
+            exchange.sendResponseHeaders(RCODE_SUCCESSFUL, response.getBytes().length);
+            os.write(response.getBytes());
+            os.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
-     * <p>
-     * This method handles processing the "verbs" from the client.
-     * </p>
+     * <p></p>
      * 
-     * @param exchange the exchange captured by the server
+     * @param exchange
      */
     @Override
     public void handle(HttpExchange exchange) {
@@ -122,6 +128,9 @@ public class SubmitTicket implements HttpHandler {
                 break;
             case "POST":
                 postRequest(exchange);
+                break;
+            case "PUT":
+                putRequest(exchange);
                 break;
             default:
                 break;

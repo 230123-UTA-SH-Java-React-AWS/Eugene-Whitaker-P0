@@ -39,7 +39,7 @@
             opacity: 0.5;
         }
 
-        #email, #password {
+        #email, #password, #managerid {
             background-color: #FFFFFF;
             border: 2px solid #CDCDCD;
             border-radius: 16px;
@@ -48,21 +48,25 @@
             width: 75%;
         }
 
-        #email:hover, #password:hover {
+        #email:hover, #password:hover, #managerid:hover {
             border-color: #7AC5FF;
             border-width: 4px;
             margin-bottom: -4px;
         }
-        #email:focus, #password:focus {
+        #email:focus, #password:focus, #managerid:focus {
             border-color: #000000
         }
 
+        #managerid {
+            margin-top: 32px;
+        }
+
         #email {
-            margin-top: 64px;
+            margin-top: 16px;
         }
 
         #password {
-            margin-top: 48px;
+            margin-top: 16px;
         }
         .forgot-password {
             text-align: left;
@@ -75,7 +79,7 @@
             text-decoration: underline;
         }
 
-        #login, #register, #manager-login {
+        #login, #register, #employee-login {
             background-color: #E60024;
             border: 2px solid #DEDEDE;
             border-radius: 16px;
@@ -95,17 +99,17 @@
             font-size: 24px;
         }
 
-        #register, #manager-login {
+        #register, #employee-login {
             background-color: #EFEFEF;
             color: #000000;
         }
 
-        #register:hover, #manager-login:hover {
+        #register:hover, #employee-login:hover {
             background-color: #FEFEFE;
             cursor: pointer;
         }
 
-        #manager-login {
+        #employee-login {
             margin-top: 5%;
         }
         #error {
@@ -121,21 +125,22 @@
     <section>
         <div class="form-container">
             <h1>Expenses Reimbursement System</h1>
-            <h4>EMPLOYEE <span>LOGIN</span></h4>
+            <h4>MANAGER <span>LOGIN</span></h4>
             <form id="login-form">
+                <input id="managerid" type="text" placeholder="Manager ID" required/>
                 <input id="email" type="email" placeholder="Email" required/>
                 <input id="password" type="password" placeholder="Password" required/>
 
                 <p class="forgot-password">Lost your password?</p>
 
                 <br />
-                
+
                 <button id="login" type="submit">Login</button>
 
                 <p class="or">or</p>
 
                 <button id="register" type="button">Register An Account</button>
-                <button id="manager-login" type="button">Login As Manager</button>
+                <button id="employee-login" type="button">Login As Employee</button>
             </form>
             <p id="error" style="display:none"></p>
         </div>
@@ -147,11 +152,14 @@
     <script defer> 
         function login() {
 
+            const managerid = document.getElementById('managerid');
             const email = document.getElementById('email');
             const password = document.getElementById('password');
             
-            const data = { email: email.value,
-                           password: password.value,
+            const data = { 
+                email: email.value,
+                password: password.value,
+                managerID: managerid.value,
             };
 
             const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
@@ -165,7 +173,7 @@
                 body: JSON.stringify(data),
             };
 
-            fetch(`http://localhost:8000/employeeLogin`, options)
+            fetch(`http://localhost:8000/managerLogin`, options)
             .then ( (response) => {
                     if(response.ok) window.location.href = response.url;
                     else return response.text();
@@ -173,6 +181,10 @@
             .then ( (text) => {
                 const error = document.getElementById('error');
                 switch(text) {
+                    case "BADID":
+                        error.innerHTML = "Inncorrect ManagerID"
+                        error.style.display = "block";
+                        break;
                     case "BADEMAIL":
                         error.innerHTML = "Inncorrect Email";
                         error.style.display = "block";
@@ -206,7 +218,7 @@
                     },
                 };
 
-                fetch(`http://localhost:8000/employeeRegister`, options)
+                fetch(`http://localhost:8000/managerRegister`, options)
                 .then ( (response) => {
                     window.location.href = response.url;
                 })
@@ -215,8 +227,8 @@
                 });
             });
 
-            const managerLogin = document.getElementById('manager-login');
-            managerLogin.addEventListener('click', function() {
+            const employeeLogin = document.getElementById('employee-login');
+            employeeLogin.addEventListener('click', function() {
                 const options = {
                     method: 'GET',
                     headers: {
@@ -224,7 +236,7 @@
                     },
                 };
 
-                fetch(`http://localhost:8000/managerLogin`, options)
+                fetch(`http://localhost:8000/employeeLogin`, options)
                 .then ( (response) => {
                     window.location.href = response.url;
                 })

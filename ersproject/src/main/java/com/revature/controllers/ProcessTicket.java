@@ -1,7 +1,7 @@
 package com.revature.controllers;
 
-import com.revature.model.Employee;
-import com.revature.service.EmployeeService;
+import com.revature.model.Ticket;
+import com.revature.service.TicketService;
 import com.revature.utils.StringBuilderUtil;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -9,37 +9,36 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.util.List;
 import org.codehaus.jackson.map.ObjectMapper;
-
 
 /**
  * @author Treyvon Whitaker
  *         <p>
  *         This class uses {@link HttpHandler} to create a context for our
- *         backend server that allows employees to login using an account that
- *         is in the the database.
+ *         backend server that allows employees to submit {@link Ticket} using an account that is in the the database.
  *         </p>
  *         See Also:
  *         <ul>
+ *         <li>{@link EmployeeLogin}</li>
  *         <li>{@link EmployeeRegister}</li>
  *         <li>{@link ManagerLogin}</li>
  *         <li>{@link ManagerRegister}</li>
  *         </ul>
  *         for more information on other contexts.
  */
-public class EmployeeLogin implements HttpHandler {
+public class ProcessTicket implements HttpHandler {
 
     // Global variable for the Return Codes
     private static final int RCODE_SUCCESSFUL = 200;
-    private static final int RCODE_REDIRECT = 301;
-    private static final int RCODE_CLIENT_ERROR = 400;
+    // private static final int RCODE_CLIENT_ERROR = 400;
 
-    private static final String BADEMAIL = "BADEMAIL";
-    private static final String BADPASS = "BADPASS";
-
+    private static final String UPDATED = "UPDATED";
+    
+    // Add Doc
     private void getRequest(HttpExchange exchange) {
         try {
-            File file = new File("ersproject/src/main/java/com/revature/view/employeeLogin.html"); 
+            File file = new File("ersproject/src/main/java/com/revature/view/processTicket.html"); 
             OutputStream os = exchange.getResponseBody();
             exchange.sendResponseHeaders(RCODE_SUCCESSFUL, file.length());
             Files.copy(file.toPath(), os);
@@ -49,41 +48,42 @@ public class EmployeeLogin implements HttpHandler {
             e.printStackTrace();
         }
     }
+
+    // Add doc
+    private void postRequest(HttpExchange exchange) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+
+            TicketService serviceTicket = new TicketService();
+            String clause = "pending = true";
+            List<Ticket> tickets = serviceTicket.getAllObjectsWhere(clause);
+            String response = mapper.writeValueAsString(tickets);
+
+            exchange.sendResponseHeaders(RCODE_SUCCESSFUL, response.getBytes().length);
+            OutputStream os = exchange.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     /**
      * <p></p>
      * 
      * @param exchange
      */
-    private void postRequest(HttpExchange exchange) {
+    private void putRequest(HttpExchange exchange) {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-
             StringBuilder textBuilder = StringBuilderUtil.buildString(exchange);
-        
-            Employee newEmployee = mapper.readValue(textBuilder.toString(), Employee.class);
 
-            EmployeeService service = new EmployeeService();
-            String clause = "email = "+"\'"+newEmployee.getEmail()+"\'";
-            Employee employee = service.getObjectsWhere(clause);
-            
+            TicketService serviceTicket = new TicketService();
+            serviceTicket.updateRepository(textBuilder.toString());
+
             OutputStream os = exchange.getResponseBody();
-            String response;
-            if (employee.getEmail() != null) {
-                if ((employee.getPassword().equals(newEmployee.getPassword()))) {
-                    exchange.getResponseHeaders().add("Location", "http://localhost:8000/submitTicket?email="+newEmployee.getEmail()+"&password="+newEmployee.getPassword());
-                    exchange.sendResponseHeaders(RCODE_REDIRECT, -1);
-                } else {
-                    response = BADPASS;                    
-                    exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
-                    os.write(response.getBytes());
-                }
-            } else {
-                response = BADEMAIL;
-                exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
-                os.write(response.getBytes());
-                
-            }
-            os.flush();
+            String response = UPDATED;
+            exchange.sendResponseHeaders(RCODE_SUCCESSFUL, response.getBytes().length);
+            os.write(response.getBytes());
             os.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -105,6 +105,9 @@ public class EmployeeLogin implements HttpHandler {
                 break;
             case "POST":
                 postRequest(exchange);
+                break;
+            case "PUT":
+                putRequest(exchange);
                 break;
             default:
                 break;

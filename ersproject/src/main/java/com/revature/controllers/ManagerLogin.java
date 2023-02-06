@@ -1,20 +1,14 @@
 package com.revature.controllers;
 
 import com.revature.model.Manager;
-import com.revature.service.ManagerIDService;
 import com.revature.service.ManagerService;
+import com.revature.utils.StringBuilderUtil;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.Reader;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
+import java.nio.file.Files;
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
@@ -35,79 +29,65 @@ import org.codehaus.jackson.map.ObjectMapper;
 public class ManagerLogin implements HttpHandler {
 
     // Global variable for the Return Codes
-    protected static final int RCODE_SUCCESSFUL = 200;
-    protected static final int RCODE_CLIENT_ERROR = 400;
+    private static final int RCODE_SUCCESSFUL = 200;
+    private static final int RCODE_REDIRECT = 301;
+    private static final int RCODE_CLIENT_ERROR = 400;
 
+    private static final String BADID = "BADID";
+    private static final String BADEMAIL = "BADEMAIL";
+    private static final String BADPASS = "BADPASS";
+
+    private void getRequest(HttpExchange exchange) {
+        try {
+            File file = new File("ersproject/src/main/java/com/revature/view/managerLogin.html"); 
+            OutputStream os = exchange.getResponseBody();
+            exchange.sendResponseHeaders(RCODE_SUCCESSFUL, file.length());
+            Files.copy(file.toPath(), os);
+            os.flush();
+            os.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     /**
-     * <p>
-     * This method processes a <code>GET</code> request from the client to login
-     * using an existing account.
-     * </p>
+     * <p></p>
      * 
-     * @param exchange the exchange captured by the server
+     * @param exchange
      */
     private void postRequest(HttpExchange exchange) {
-        // Read in login information from client
-        InputStream is = exchange.getRequestBody();
-        StringBuilder textBuilder = new StringBuilder();
-        ObjectMapper mapper = new ObjectMapper();
-        try (Reader reader = new BufferedReader(
-                new InputStreamReader(is, Charset.forName(StandardCharsets.UTF_8.name())))) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            
+            StringBuilder textBuilder = StringBuilderUtil.buildString(exchange);
 
-            int c = 0;
-
-            while ((c = reader.read()) != -1) {
-                textBuilder.append((char) c);
-            }
-
-            // Convert client login from json to Manager object
             Manager newManager = mapper.readValue(textBuilder.toString(), Manager.class);
-
-            // Get all ManagerIDs currently in database
-            ManagerIDService IDservice = new ManagerIDService();
-            List<Integer> listManagerIDs = IDservice.getAllObjects();
-
-            // Search if client login managerID is in managerIDs table of the database
-            // If it is send a Back Request RCODE back to client
-            int index = Collections.binarySearch(listManagerIDs, newManager.getManagerID());
+            
+            ManagerService service = new ManagerService();
+            String clause = "email = "+"\'"+newManager.getEmail()+"\'";
+            Manager manager = service.getObjectsWhere(clause);
 
             OutputStream os = exchange.getResponseBody();
             String response;
-
-            if (index < 0) {
-                response = "ManagerID not Registered";
-                exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
-                os.write(response.getBytes());
-            } else {
-                // Get all Managers currently in database
-                ManagerService service = new ManagerService();
-                List<Manager> listManagers = service.getAllObjects();
-
-                // Search if client login email is in database
-                // If it is send a Back Request RCODE back to client
-                List<String> listEmails = service.getAllColumnString("email");
-                
-                index = Collections.binarySearch(listEmails, newManager.getEmail());
-
-                // Check if password match to what is in database
-                // If it dosen't send a Back Request RCODE back to client
-                // Otherwise send response back to client
-                if (index < 0) {
-                    response = "Inncorrect Email";
-                    exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
-                    os.write(response.getBytes());
-                } else {
-                    if ((listManagers.get(index).getPassword()).equals(newManager.getPassword())) {
-                        response = "Login Successful";
-                        exchange.sendResponseHeaders(RCODE_SUCCESSFUL, response.getBytes().length);
-                        os.write(response.getBytes());
+            if (manager.getEmail() != null) {
+                if (manager.getManagerID() == newManager.getManagerID()) {
+                    if (manager.getPassword().equals(newManager.getPassword())) {
+                        exchange.getResponseHeaders().add("Location", "http://localhost:8000/processTicket?email="+newManager.getEmail()+"&password="+newManager.getPassword()+"&managerid="+newManager.getManagerID());
+                        exchange.sendResponseHeaders(RCODE_REDIRECT, -1);
                     } else {
-                        response = "Inncorrect Password";
+                        response = BADPASS;
                         exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
                         os.write(response.getBytes());
                     }
+                } else {
+                    response = BADID;
+                    exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
+                    os.write(response.getBytes());
                 }
-            }
+        } else {
+            response = BADEMAIL;
+            exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
+            os.write(response.getBytes());
+        }
             os.flush();
             os.close();
 
@@ -117,17 +97,18 @@ public class ManagerLogin implements HttpHandler {
     }
 
     /**
-     * <p>
-     * This method handles processing the "verbs" from the client.
-     * </p>
+     * <p></p>
      * 
-     * @param exchange the exchange captured by the server
+     * @param exchange
      */
     @Override
     public void handle(HttpExchange exchange) {
         String verb = exchange.getRequestMethod();
 
         switch (verb) {
+            case "GET":
+                getRequest(exchange);
+                break;
             case "POST":
                 postRequest(exchange);
                 break;
