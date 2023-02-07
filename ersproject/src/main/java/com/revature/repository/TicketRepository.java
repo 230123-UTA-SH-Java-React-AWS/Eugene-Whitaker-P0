@@ -1,5 +1,6 @@
 package com.revature.repository;
 
+import com.revature.App;
 import com.revature.model.Employee;
 import com.revature.model.Ticket;
 import com.revature.repository.dao.DAOgetAllObjectsWhere;
@@ -53,6 +54,7 @@ public class TicketRepository implements DAOsaveToRepositoryFK<Ticket, Employee>
 
             prstmt.execute();
 
+            App.logger.info("Number of rows updated: "+prstmt.getUpdateCount());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -113,6 +115,7 @@ public class TicketRepository implements DAOsaveToRepositoryFK<Ticket, Employee>
 
             prstmt.execute();
 
+            App.logger.info("Number of rows updated: "+prstmt.getUpdateCount());
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -1,5 +1,6 @@
 package com.revature.repository;
 
+import com.revature.App;
 import com.revature.model.Manager;
 import com.revature.repository.dao.DAOgetObjectsWhere;
 import com.revature.repository.dao.DAOsaveToRepository;
@@ -46,6 +47,7 @@ public class ManagerRepository implements DAOsaveToRepository<Manager>, DAOgetOb
 
             prstmt.execute();
 
+            App.logger.info("Number of rows updated: "+prstmt.getUpdateCount());
         } catch (SQLException e) {
             e.printStackTrace();
         }
