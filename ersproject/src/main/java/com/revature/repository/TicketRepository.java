@@ -2,7 +2,11 @@ package com.revature.repository;
 
 import com.revature.model.Employee;
 import com.revature.model.Ticket;
+import com.revature.repository.dao.DAOgetAllObjectsWhere;
+import com.revature.repository.dao.DAOsaveToRepositoryFK;
+import com.revature.repository.dao.DAOupdateRepository;
 import com.revature.utils.ConnectionUtil;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,26 +18,29 @@ import java.util.List;
 /**
  * @author Treyvon Whitaker
  *         <p>
- *         This class handles the interactions with the employee table of the
- *         database. It implements the generic <code>DOA</code> interface
- *         {@link Repository}.
+ *         This class handles the interactions with the employee table of 
+ *         the database. It implements the generic <code>DOA</code> 
+ *         interface(s) {@link Repository}.
  *         </p>
  *         See Also:
  *         <ul>
  *         <li>{@link ManagerIDRepository}</li>
  *         <li>{@link ManagerRepository}</li>
+ *         <li>{@link TicketRepository}</li>
  *         </ul>
  *         for more information on other repositories.
  */
-public class TicketRepository {
+public class TicketRepository implements DAOsaveToRepositoryFK<Ticket, Employee>, DAOgetAllObjectsWhere<Ticket>, DAOupdateRepository<Ticket> {
     /**
      * <p>
-     * This method adds a new {@link Ticket} object to the database.
+     * This method saves an object to the database
      * </p>
      * 
-     * @param employee the object to be added
+     * @param ticket the object to be saved
+     * @param employee the object containing the foreign key
      */
-    public void saveToRepository(Ticket ticket, Employee employee) {
+    @Override
+    public void saveToRepositoryFK(Ticket ticket, Employee employee) {
         String sql = "INSERT INTO ticket (employeeID, amount, description, pending, status) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection connection = ConnectionUtil.getConnection()) {
@@ -53,47 +60,14 @@ public class TicketRepository {
 
     /**
      * <p>
-     * This method gets all employees in the database and returns them as a
-     * {@link List} of {@link Ticket} objects.
+     * This method gets an <code>ListM/code> of items from the database 
+     * specified by the clause parameter
      * </p>
      * 
-     * @return the {@link List} of objects
+     * @param clause the WHERE clause meant to select the items
+     * @return The items selected
      */
-
-    public List<Ticket> getAllObjects() {
-        String sql = "SELECT * FROM ticket";
-        List<Ticket> listTickets = new ArrayList<Ticket>();
-
-        try (Connection connection = ConnectionUtil.getConnection()) {
-            Statement stmt = connection.createStatement();
-
-            ResultSet rs = stmt.executeQuery(sql);
-
-            while (rs.next()) {
-                Ticket newTicket = new Ticket();
-                newTicket.setTicketID(rs.getInt(1));
-                newTicket.setAmount(rs.getFloat(2));
-                newTicket.setDescription(rs.getString(3));
-
-                listTickets.add(newTicket);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return listTickets;
-    }
-
-    /**
-     * <p>
-     * This method gets all entries of a column where the entry is a
-     * <code>String</code> in the database and returns them as a
-     * {@link List} of {@link String} objects.
-     * </p>
-     * 
-     * @return the {@link List} of objects
-     */
+    @Override
     public List<Ticket> getAllObjectsWhere(String clause) {
         String sql = "SELECT * FROM ticket WHERE "+clause;
         List<Ticket> listTickets = new ArrayList<Ticket>();
@@ -120,6 +94,14 @@ public class TicketRepository {
         return listTickets;
     }
 
+    /**
+     * <p>
+     * This method updates an object to the database
+     * </p>
+     * 
+     * @param ticket the object to be updated
+     */
+    @Override
     public void updateRepository(Ticket ticket) {
         String sql = "UPDATE ticket SET (pending, status) = (?, ?) WHERE ID = (?)";
 
@@ -135,4 +117,5 @@ public class TicketRepository {
             e.printStackTrace();
         }
     }
+    
 }

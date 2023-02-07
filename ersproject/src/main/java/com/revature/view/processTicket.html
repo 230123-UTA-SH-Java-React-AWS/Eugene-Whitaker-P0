@@ -322,20 +322,7 @@
 
             const logout = document.getElementById('logout');
             logout.addEventListener('click', function() {
-                const options = {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                };
-
-                fetch(`http://localhost:8000/managerLogin`, options)
-                .then ( (response) => {
-                    window.location.href = response.url;
-                })
-                .catch( (error) => {
-                    console.error(error);
-                });
+                window.location.href = `http://localhost:8000/managerLogin`;
             });
         }
 

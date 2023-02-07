@@ -1,14 +1,15 @@
 package com.revature.repository;
 
 import com.revature.model.Manager;
+import com.revature.repository.dao.DAOgetObjectsWhere;
+import com.revature.repository.dao.DAOsaveToRepository;
 import com.revature.utils.ConnectionUtil;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Treyvon Whitaker
@@ -24,14 +25,15 @@ import java.util.List;
  *         </ul>
  *         for more information on other repositories.
  */
-public class ManagerRepository {
+public class ManagerRepository implements DAOsaveToRepository<Manager>, DAOgetObjectsWhere<Manager> {
     /**
      * <p>
-     * This method adds a new {@link Manager} object to the database.
+     * This method saves an object to the database
      * </p>
      * 
-     * @param manager the object to be added
+     * @param manager the object to be saved
      */
+    @Override
     public void saveToRepository(Manager manager) {
         String sql = "INSERT INTO manager (ID, email, pass) VALUES (?, ?, ?)";
 
@@ -51,37 +53,14 @@ public class ManagerRepository {
 
     /**
      * <p>
-     * This method gets all managers in the database and returns them as a
-     * {@link List} of {@link Manager} objects.
+     * This method gets an unique item from the database specified by the 
+     * clause parameter
      * </p>
      * 
-     * @return the {@link List} of objects
+     * @param clause the WHERE clause meant to select a unique item
+     * @return The unique item selected
      */
-    public List<Manager> getAllObjects() {
-        String sql = "SELECT * FROM manager";
-        List<Manager> listManagers = new ArrayList<Manager>();
-
-        try (Connection connection = ConnectionUtil.getConnection()) {
-            Statement stmt = connection.createStatement();
-
-            ResultSet rs = stmt.executeQuery(sql);
-
-            while (rs.next()) {
-                Manager newManager = new Manager();
-                newManager.setManagerID(rs.getInt(1));
-                newManager.setEmail(rs.getString(2));
-                newManager.setPassword(rs.getString(3));
-
-                listManagers.add(newManager);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return listManagers;
-    }
-
+    @Override
     public Manager getObjectsWhere(String clause) {
         String sql = "SELECT * FROM manager WHERE "+clause;
         Manager manager = new Manager();

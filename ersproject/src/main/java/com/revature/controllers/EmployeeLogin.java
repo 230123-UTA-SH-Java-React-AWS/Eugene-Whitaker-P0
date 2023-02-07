@@ -1,14 +1,18 @@
 package com.revature.controllers;
 
 import com.revature.model.Employee;
+import com.revature.repository.EmployeeRepository;
 import com.revature.service.EmployeeService;
 import com.revature.utils.StringBuilderUtil;
+
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
+
 import org.codehaus.jackson.map.ObjectMapper;
 
 
@@ -16,14 +20,16 @@ import org.codehaus.jackson.map.ObjectMapper;
  * @author Treyvon Whitaker
  *         <p>
  *         This class uses {@link HttpHandler} to create a context for our
- *         backend server that allows employees to login using an account that
- *         is in the the database.
+ *         backend server that allows employees to login using an account 
+ *         that is in the the database.
  *         </p>
  *         See Also:
  *         <ul>
  *         <li>{@link EmployeeRegister}</li>
  *         <li>{@link ManagerLogin}</li>
  *         <li>{@link ManagerRegister}</li>
+ *         <li>{@link ProcessTicket}</li>
+ *         <li>{@link SubmitTicket}</li>
  *         </ul>
  *         for more information on other contexts.
  */
@@ -37,6 +43,14 @@ public class EmployeeLogin implements HttpHandler {
     private static final String BADEMAIL = "BADEMAIL";
     private static final String BADPASS = "BADPASS";
 
+    /**
+     * <p>
+     * This method process HTTP <code>GET</code> Requests
+     * </p>
+     * 
+     * @param exchange the exchange object the request information is sent 
+     * through
+     */
     private void getRequest(HttpExchange exchange) {
         try {
             File file = new File("ersproject/src/main/java/com/revature/view/employeeLogin.html"); 
@@ -49,26 +63,37 @@ public class EmployeeLogin implements HttpHandler {
             e.printStackTrace();
         }
     }
+
     /**
-     * <p></p>
+     * <p>
+     * This method process HTTP <code>POST</code> Requests
+     * </p>
      * 
-     * @param exchange
+     * @param exchange the exchange object the request information is sent 
+     * through
      */
     private void postRequest(HttpExchange exchange) {
         try {
+            // Get employee information from the client
             ObjectMapper mapper = new ObjectMapper();
 
             StringBuilder textBuilder = StringBuilderUtil.buildString(exchange);
         
             Employee newEmployee = mapper.readValue(textBuilder.toString(), Employee.class);
 
-            EmployeeService service = new EmployeeService();
+            // Verify it by sending a query to the database
+            EmployeeService service = new EmployeeService(new EmployeeRepository());
             String clause = "email = "+"\'"+newEmployee.getEmail()+"\'";
             Employee employee = service.getObjectsWhere(clause);
             
+            // If the query comes back as null
+            // Send BAD Request response code back to browser
             OutputStream os = exchange.getResponseBody();
             String response;
             if (employee.getEmail() != null) {
+                // If the password sent from client 
+                // doesn't matches the database query 
+                // Send BAD Request response code back to browser
                 if ((employee.getPassword().equals(newEmployee.getPassword()))) {
                     exchange.getResponseHeaders().add("Location", "http://localhost:8000/submitTicket?email="+newEmployee.getEmail()+"&password="+newEmployee.getPassword());
                     exchange.sendResponseHeaders(RCODE_REDIRECT, -1);
@@ -91,9 +116,13 @@ public class EmployeeLogin implements HttpHandler {
     }
 
     /**
-     * <p></p>
+     * <p>
+     * This method process HTTP Request method and forwards the exchange 
+     * object to its respective destination
+     * </p>
      * 
-     * @param exchange
+     * @param exchange the exchange object the request information is sent 
+     * through
      */
     @Override
     public void handle(HttpExchange exchange) {

@@ -3,12 +3,13 @@ package com.revature.model;
 /**
  * @author Treyvon Whitaker
  *         <p>
- *         This class houses the information relative to managers. It extends
- *         the {@link Account} object.
+ *         This class houses the information relative to managers. It 
+ *         extends the {@link Account} object.
  *         </p>
  *         See Also:
  *         <ul>
  *         <li>{@link Employee}</li>
+ *         <li>{@link Ticket}</li>
  *         </ul>
  *         for more information on other models.
  */

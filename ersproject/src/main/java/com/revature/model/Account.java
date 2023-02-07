@@ -3,12 +3,14 @@ package com.revature.model;
 /**
  * @author Treyvon Whitaker
  *         <p>
- *         This abstract class houses the information relative to all accounts.
+ *         This abstract class houses the information relative to all
+ *         accounts.
  *         </p>
  *         See Also:
  *         <ul>
  *         <li>{@link Employee}</li>
  *         <li>{@link Manager}</li>
+ *         <li>{@link Ticket}</li>
  *         </ul>
  *         for more information on specific account models.
  */

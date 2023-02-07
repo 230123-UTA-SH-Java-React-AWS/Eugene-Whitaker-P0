@@ -8,8 +8,8 @@ import java.sql.SQLException;
  * @author Treyvon Whitaker
  *         <p>
  *         This class utilizes the {@link org.postgresql.Driver} and
- *         {@link DriverManager} of the JDBC to allow our backend to interact
- *         with our postgre database.
+ *         {@link DriverManager} of the JDBC to allow our backend to 
+ *         interact with our postgre database.
  *         </p>
  */
 public class ConnectionUtil {
@@ -22,9 +22,9 @@ public class ConnectionUtil {
 
     /**
      * <p>
-     * This method creates a connection is
-     * <code>url</code>,<code>user</code>,<code>password</code> which are being
-     * stored as enviornment variable in our system.
+     * This method creates a connection on
+     * <code>url</code>,<code>user</code>,<code>password</code> which are 
+     * being stored as enviornment variable in our system.
      * </p>
      * 
      * @return a connection to the URL

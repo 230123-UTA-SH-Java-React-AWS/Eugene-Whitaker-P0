@@ -114,7 +114,7 @@
         }
         #error {
             color: #F70034;
-            margin-top: 10%;
+            margin-top: 2.5%;
         }
     </style>
 </head>
@@ -132,6 +132,7 @@
                 <input id="password" type="password" placeholder="Password" required/>
 
                 <p class="forgot-password">Lost your password?</p>
+                <p class="forgot-password" style="display:none">Well I hope you find it, I'm sure it will turn up soon!</p>
 
                 <br />
 
@@ -211,39 +212,20 @@
 
             const register = document.getElementById('register');
             register.addEventListener('click', function() {
-                const options = {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                };
-
-                fetch(`http://localhost:8000/managerRegister`, options)
-                .then ( (response) => {
-                    window.location.href = response.url;
-                })
-                .catch( (error) => {
-                    console.error(error);
-                });
+                window.location.href = `http://localhost:8000/managerRegister`;
             });
 
             const employeeLogin = document.getElementById('employee-login');
             employeeLogin.addEventListener('click', function() {
-                const options = {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                };
-
-                fetch(`http://localhost:8000/employeeLogin`, options)
-                .then ( (response) => {
-                    window.location.href = response.url;
-                })
-                .catch( (error) => {
-                    console.error(error);
-                });
+                window.location.href = `http://localhost:8000/employeeLogin`;
             });
+
+            const forgotPassword = document.getElementsByClassName('forgot-password')[0];
+            forgotPassword.addEventListener('click', function() {
+                const message = document.getElementsByClassName('forgot-password')[1];
+                if(message.style.display == "none") message.style.display = "block";
+                else message.style.display = "none";
+            })
         }
 
         document.addEventListener('DOMContentLoaded', onload);

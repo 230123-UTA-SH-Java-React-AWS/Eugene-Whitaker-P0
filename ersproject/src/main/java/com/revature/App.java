@@ -6,7 +6,9 @@ import com.revature.controllers.ManagerLogin;
 import com.revature.controllers.ManagerRegister;
 import com.revature.controllers.ProcessTicket;
 import com.revature.controllers.SubmitTicket;
+
 import com.sun.net.httpserver.HttpServer;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.logging.Logger;
@@ -14,9 +16,9 @@ import java.util.logging.Logger;
 /**
  * @author Treyvon Whitaker
  *         <p>
- *         This class houses the main method of the project. The main method runs
- *         a server using {@link HttpServer}.
- *         This server will function as the local backend for this project.
+ *         This class houses the main method of the project. The main 
+ *         method runs a server using {@link HttpServer}. This server will 
+ *         function as the local backend for this project.
  *         </p>
  *         See:
  *         <ul>
@@ -24,6 +26,8 @@ import java.util.logging.Logger;
  *         <li>{@link EmployeeRegister}</li>
  *         <li>{@link ManagerLogin}</li>
  *         <li>{@link ManagerRegister}</li>
+ *         <li>{@link ProcessTicket}</li>
+ *         <li>{@link SubmitTicket}</li>
  *         </ul>
  *         for more information on each context.
  */
@@ -48,7 +52,6 @@ public final class App {
             HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
 
             // Define each context
-            // server.createContext("/", new EmployeeLogin());
             server.createContext("/employeeLogin", new EmployeeLogin());
             server.createContext("/employeeRegister", new EmployeeRegister());
             server.createContext("/managerLogin", new ManagerLogin());

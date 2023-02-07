@@ -1,15 +1,20 @@
 package com.revature.controllers;
 
 import com.revature.model.Manager;
+import com.revature.repository.ManagerIDRepository;
+import com.revature.repository.ManagerRepository;
 import com.revature.service.ManagerIDService;
 import com.revature.service.ManagerService;
 import com.revature.utils.StringBuilderUtil;
+
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
+
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
@@ -24,6 +29,8 @@ import org.codehaus.jackson.map.ObjectMapper;
  *         <li>{@link EmployeeLogin}</li>
  *         <li>{@link EmployeeRegister}</li>
  *         <li>{@link ManagerLogin}</li>
+ *         <li>{@link ProcessTicket}</li>
+ *         <li>{@link SubmitTicket}</li>
  *         </ul>
  *         for more information on other contexts.
  */
@@ -37,6 +44,14 @@ public class ManagerRegister implements HttpHandler {
     private static final String BADID = "BADID";
     private static final String BADEMAIL = "BADEMAIL";
 
+    /**
+    * <p>
+    * This method process HTTP <code>GET</code> Requests
+    * </p>
+    * 
+    * @param exchange the exchange object the request information is sent 
+    * through
+    */
     private void getRequest(HttpExchange exchange) {
         try {
             File file = new File("ersproject/src/main/java/com/revature/view/managerRegister.html"); 
@@ -51,36 +66,50 @@ public class ManagerRegister implements HttpHandler {
     }
 
     /**
-     * <p>
-     * This method processes a <code>POST</code> request from the client to register
-     * a new manager account.
-     * </p>
-     * 
-     * @param exchange the exchange captured by the server
-     */
+    * <p>
+    * This method process HTTP <code>POST</code> Requests
+    * </p>
+    * 
+    * @param exchange the exchange object the request information is sent 
+    * through
+    */
     private void postRequest(HttpExchange exchange) {
         try {
+            // Get manager information from the client
             ObjectMapper mapper = new ObjectMapper();
             
             StringBuilder textBuilder = StringBuilderUtil.buildString(exchange);
 
             Manager newManager = mapper.readValue(textBuilder.toString(), Manager.class);
 
-            ManagerIDService IDservice = new ManagerIDService();
+            // Verify it by sending a query to the database
+            // for the managerids table
+            // we do the to ensure a manager is registering in with
+            // a predetermined managerID
+            ManagerIDService IDservice = new ManagerIDService(new ManagerIDRepository());
             String clause = "ID = "+"\'"+newManager.getManagerID()+"\'";
-            int managerID = IDservice.getObjectsWhere(clause);
+            Integer managerID = IDservice.getObjectsWhere(clause);
 
+            // If the query comes back as null
+            // Send BAD Request response code back to browser
             OutputStream os = exchange.getResponseBody();
             String response;
             if (managerID != 0) {
-                ManagerService service = new ManagerService();
+                // Verify it by sending a query to the database
+                // for the manager table
+                ManagerService service = new ManagerService(new ManagerRepository());
                 clause = "email = "+"\'"+newManager.getEmail()+"\'";
                 Manager manager = service.getObjectsWhere(clause);
 
+                // If the query comes back as not null
+                // Send BAD Request response code back to browser
                 if (manager.getEmail() == null) {
                     clause = "ID = "+"\'"+managerID+"\'";
                     manager = service.getObjectsWhere(clause);
 
+                    // If the managerID sent from client 
+                    // doesn't matches the database query 
+                    // Send BAD Request response code back to browser
                     if (manager.getManagerID() == 0) {
                         service.saveToRepository(textBuilder.toString());
                         exchange.getResponseHeaders().add("Location", "http://localhost:8000/managerLogin");
@@ -109,9 +138,13 @@ public class ManagerRegister implements HttpHandler {
     }
 
     /**
-     * <p></p>
+     * <p>
+     * This method process HTTP Request method and forwards the exchange 
+     * object to its respective destination
+     * </p>
      * 
-     * @param exchange
+     * @param exchange the exchange object the request information is sent 
+     * through
      */
     @Override
     public void handle(HttpExchange exchange) {

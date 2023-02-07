@@ -108,7 +108,7 @@
         }
         #error {
             color: #F70034;
-            margin-bottom: 0;
+            margin-top: 2.5%;
         }
     </style>
 </head>
@@ -191,38 +191,12 @@
 
             const login = document.getElementById('login');
             login.addEventListener('click', function() {
-                const options = {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                };
-
-                fetch(`http://localhost:8000/employeeLogin`, options)
-                .then ( (response) => {
-                    window.location.href = response.url;
-                })
-                .catch( (error) => {
-                    console.error(error);
-                });
+                window.location.href = `http://localhost:8000/employeeLogin`;
             });
 
             const managerLogin = document.getElementById('manager-login');
             managerLogin.addEventListener('click', function() {
-                const options = {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                };
-
-                fetch(`http://localhost:8000/managerLogin`, options)
-                .then ( (response) => {
-                    window.location.href = response.url;
-                })
-                .catch( (error) => {
-                    console.error(error);
-                });
+                window.location.href = `http://localhost:8000/managerLogin`;
             });
         }
 

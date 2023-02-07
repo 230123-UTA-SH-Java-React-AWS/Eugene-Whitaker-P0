@@ -27,11 +27,10 @@ insert into manager (ID, email, pass) values (1, 'admin@test.com', 'test');
 create table ticket (
 	ID serial unique,
 	employeeID integer references employee(ID) not null,
-	amount integer not null,
+	amount decimal not null,
 	description varchar(255) not null,
 	pending boolean not null,
 	status varchar(8),
 	primary key(ID, employeeID)
 );
 insert into ticket (employeeID, amount, description, pending, status) values (1, 100.00, 'test', true, 'pending');
-

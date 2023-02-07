@@ -1,37 +1,39 @@
 package com.revature.repository;
 
 import com.revature.model.Employee;
+import com.revature.repository.dao.DAOgetObjectsWhere;
+import com.revature.repository.dao.DAOsaveToRepository;
 import com.revature.utils.ConnectionUtil;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Treyvon Whitaker
  *         <p>
- *         This class handles the interactions with the employee table of the
- *         database. It implements the generic <code>DOA</code> interface
- *         {@link Repository}.
+ *         This class handles the interactions with the employee table of 
+ *         the database. It implements the generic <code>DOA</code>         
+ *         interface(s) {@link Repository}.
  *         </p>
  *         See Also:
  *         <ul>
  *         <li>{@link ManagerIDRepository}</li>
  *         <li>{@link ManagerRepository}</li>
+ *         <li>{@link TicketRepository}</li>
  *         </ul>
  *         for more information on other repositories.
  */
-public class EmployeeRepository {
+public class EmployeeRepository implements DAOsaveToRepository<Employee>, DAOgetObjectsWhere<Employee> {
     /**
      * <p>
-     * This method adds a new {@link Employee} object to the database.
+     * This method saves an object to the database
      * </p>
      * 
-     * @param employee the object to be added
+     * @param employee the object to be saved
      */
+    @Override
     public void saveToRepository(Employee employee) {
         String sql = "INSERT INTO employee (email, pass) VALUES (?, ?)";
 
@@ -49,36 +51,14 @@ public class EmployeeRepository {
 
     /**
      * <p>
-     * This method gets all employees in the database and returns them as a
-     * {@link List} of {@link Employee} objects.
+     * This method gets an unique item from the database specified by the 
+     * clause parameter
      * </p>
      * 
-     * @return the {@link List} of objects
+     * @param clause the WHERE clause meant to select a unique item
+     * @return The unique item selected
      */
-    public List<Employee> getAllObjects() {
-        String sql = "SELECT * FROM employee";
-        List<Employee> listEmployees = new ArrayList<Employee>();
-
-        try (Connection connection = ConnectionUtil.getConnection()) {
-            Statement stmt = connection.createStatement();
-
-            ResultSet rs = stmt.executeQuery(sql);
-
-            while (rs.next()) {
-                Employee newEmployee = new Employee();
-                newEmployee.setEmail(rs.getString(2));
-                newEmployee.setPassword(rs.getString(3));
-
-                listEmployees.add(newEmployee);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return listEmployees;
-    }
-
+    @Override
     public Employee getObjectsWhere(String clause) {
         String sql = "SELECT * FROM employee WHERE "+clause;
         Employee employee = new Employee();

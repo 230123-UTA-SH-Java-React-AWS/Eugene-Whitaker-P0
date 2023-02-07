@@ -67,7 +67,7 @@
             width: 96px;
         }
 
-        #submit-ticket, #refresh, #logout {
+        #submit-ticket, #refresh, #logout, #sort {
             background-color: #E60024;
             border: 2px solid #DEDEDE;
             border-radius: 4px;
@@ -78,10 +78,14 @@
             width: 96px; 
         }
 
-        #submit-ticket:hover, #refresh:hover, #logout:hover {
+        #submit-ticket:hover, #refresh:hover, #logout:hover, #sort:hover {
             background-color: #F70034;
             border-color: #000000;
             cursor: pointer;
+        }
+
+        #sort {
+            width: 128px;
         }
 
         #added {
@@ -89,7 +93,7 @@
         }
 
         #logout {
-            margin-top: 20%;
+            margin-top: 10%;
         }
         
     </style>
@@ -115,6 +119,7 @@
                 </tbody>
             </table>
             <button id="refresh">Refresh</button>
+            <button id="sort">Sort by</button>
             <form id="submit-form">
                 <button id="submit-ticket" type="submit">Submit</button>
                 <input id="amount" type="text" placeholder="dollar amount" required/>
@@ -134,35 +139,109 @@
         function submit() {
             const amount = document.getElementById('amount');
             const description = document.getElementById('description');
+            const added = document.getElementById('added');
 
-            const data = {
-                amount: amount.value,
-                description: description.value, 
-            };
+            if(!isNaN(amount.value)) {
 
-            const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
+                const data = {
+                    amount: amount.value,
+                    description: description.value, 
+                };
 
-            const options = {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': content_length,
-                },
-                body: JSON.stringify(data),
-            };
+                const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
 
-            fetch(`http://localhost:8000/submitTicket`, options)
-            .then( (response) => {
-                if(response.ok) return response.text();
-            })
-            .then( (text) => {
-                const added = document.getElementById('added');
-                added.innerHTML = "Ticket Added Successfully";
+                const options = {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': content_length,
+                    },
+                    body: JSON.stringify(data),
+                };
+
+                fetch(`http://localhost:8000/submitTicket`, options)
+                .then( (response) => {
+                    if(response.ok) return response.text();
+                })
+                .then( (text) => {
+                    added.innerHTML = "Ticket Added Successfully";
+                    added.style.color = "#000000";
+                    added.style.display = "block";
+                })
+                .catch( (error) => {
+                    console.error(error);
+                });
+            } else {
+                added.innerHTML = "'Amount' must be a numeric value"
+                added.style.color = "#F70034";
                 added.style.display = "block";
-            })
-            .catch( (error) => {
-                console.error(error);
-            });
+            }
+        }
+
+        function removeTableItems() {
+            const table = document.getElementsByClassName('table-body')[0];
+            let children = table.childNodes;
+            for(let i = children.length-1; i >= 0; i--) {
+                if (children[i].nodeType === 1) {
+                    table.removeChild(children[i]);
+                }
+            }
+        }
+
+        function addTableItems(items) {
+            const table = document.getElementsByClassName('table-body')[0];
+            for(ticket of items) {
+                const tRow = document.createElement('tr');
+
+                const tDataID = document.createElement('td');
+                tDataID.innerHTML = ticket.ticketID;
+                tRow.appendChild(tDataID);
+                const tDataAmt = document.createElement('td');
+                tDataAmt.innerHTML = ticket.amount;
+                tRow.appendChild(tDataAmt);
+                const tDataDes = document.createElement('td');
+                tDataDes.innerHTML = ticket.description;
+                tRow.appendChild(tDataDes);
+                const tDataStat = document.createElement('td');
+                tDataStat.innerHTML = ticket.status;
+                tRow.appendChild(tDataStat);
+            
+                table.appendChild(tRow);
+            }
+        }
+
+        function sortTable() {
+            let data = prompt("How would you like so sort?");
+
+            if (data === "approved" || data === "denied" || data === "pending") {
+                const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
+
+                const options = {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': content_length,
+                    },
+                    body: JSON.stringify(data),
+                };
+
+                fetch(`http://localhost:8000/submitTicket`, options)
+                .then( (response) => {
+                    if(response.ok) return response.json();
+                })
+                .then( (data) => {
+                    removeTableItems();
+                    addTableItems(data);
+                })
+                .catch( (error) => {
+                    console.error(error);
+                });
+            } else {
+                const added = document.getElementById('added');
+                added.innerHTML = "You can only filter by status(i.e. 'approved', 'denied', or 'pending')"
+                added.style.color = "#F70034";
+                added.style.display = "block"; 
+            }
         }
 
         function getTickets() {
@@ -231,6 +310,9 @@
                 });
             });
 
+            const sort = document.getElementById('sort');
+            sort.addEventListener('click', sortTable);
+
             const form = document.getElementById('submit-form');
             form.addEventListener('submit', function(event) {
                 event.preventDefault();
@@ -239,20 +321,7 @@
 
             const logout = document.getElementById('logout');
             logout.addEventListener('click', function() {
-                const options = {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                };
-
-                fetch(`http://localhost:8000/employeeLogin`, options)
-                .then ( (response) => {
-                    window.location.href = response.url;
-                })
-                .catch( (error) => {
-                    console.error(error);
-                });
+                window.location.href = `http://localhost:8000/employeeLogin`;
             });
         }
 

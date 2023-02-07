@@ -72,16 +72,6 @@
         #verify {
             margin-top: 8px;
         }
-        .forgot-password {
-            text-align: left;
-            padding-left: 12.5%
-        }
-
-        .forgot-password:hover {
-            color: #E60024;
-            cursor: pointer;
-            text-decoration: underline;
-        }
 
         #login, #register, #employee-login {
             background-color: #E60024;
@@ -97,6 +87,10 @@
         #register:hover {
             background-color: #F70034;
             cursor: pointer;
+        }
+
+        #register {
+            margin-top: 16px;
         }
 
         .or {
@@ -118,7 +112,7 @@
         }
         #error {
             color: #F70034;
-            margin-top: 10%;
+            margin-top: 2.5%;
         }
     </style>
 </head>
@@ -135,8 +129,6 @@
                 <input id="email" type="email" placeholder="Email" required/>
                 <input id="password" type="password" placeholder="Password" required/>
                 <input id="verify" type="password" placeholder="Re-enter Password" required/>
-
-                <p class="forgot-password">Lost your password?</p>
 
                 <br />
 
@@ -217,38 +209,12 @@
 
             const login = document.getElementById('login');
             login.addEventListener('click', function() {
-                const options = {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                };
-
-                fetch(`http://localhost:8000/managerLogin`, options)
-                .then ( (response) => {
-                    window.location.href = response.url;
-                })
-                .catch( (error) => {
-                    console.error(error);
-                });
+                window.location.href = `http://localhost:8000/managerLogin`;
             });
 
             const employeeLogin = document.getElementById('employee-login');
             employeeLogin.addEventListener('click', function() {
-                const options = {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                };
-
-                fetch(`http://localhost:8000/employeeLogin`, options)
-                .then ( (response) => {
-                    window.location.href = response.url;
-                })
-                .catch( (error) => {
-                    console.error(error);
-                });
+                window.location.href = `http://localhost:8000/employeeLogin`;
             });
         }
 
