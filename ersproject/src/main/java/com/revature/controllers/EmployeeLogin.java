@@ -95,7 +95,7 @@ public class EmployeeLogin implements HttpHandler {
                 // doesn't matches the database query 
                 // Send BAD Request response code back to browser
                 if ((employee.getPassword().equals(newEmployee.getPassword()))) {
-                    exchange.getResponseHeaders().add("Location", "http://localhost:8000/submitTicket?email="+newEmployee.getEmail()+"&password="+newEmployee.getPassword());
+                    exchange.getResponseHeaders().add("Location", "http://localhost:8000/submitTicket");
                     exchange.sendResponseHeaders(RCODE_REDIRECT, -1);
                 } else {
                     response = BADPASS;                    

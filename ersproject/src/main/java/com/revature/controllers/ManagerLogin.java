@@ -99,7 +99,7 @@ public class ManagerLogin implements HttpHandler {
                     // doesn't matches the database query 
                     // Send BAD Request response code back to browser
                     if (manager.getPassword().equals(newManager.getPassword())) {
-                        exchange.getResponseHeaders().add("Location", "http://localhost:8000/processTicket?email="+newManager.getEmail()+"&password="+newManager.getPassword()+"&managerid="+newManager.getManagerID());
+                        exchange.getResponseHeaders().add("Location", "http://localhost:8000/processTicket");
                         exchange.sendResponseHeaders(RCODE_REDIRECT, -1);
                     } else {
                         response = BADPASS;

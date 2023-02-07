@@ -153,7 +153,7 @@
     <script defer> 
         function login() {
 
-            const managerid = document.getElementById('managerid');
+            const managerID = document.getElementById('managerid');
             const email = document.getElementById('email');
             const password = document.getElementById('password');
             
@@ -176,7 +176,12 @@
 
             fetch(`http://localhost:8000/managerLogin`, options)
             .then ( (response) => {
-                    if(response.ok) window.location.href = response.url;
+                    if(response.ok) {
+                        localStorage.setItem("managerEmail", email.value);
+                        localStorage.setItem("managerPassword", password.value);
+                        localStorage.setItem("managerID", managerID.value);
+                        window.location.href = response.url;
+                    }
                     else return response.text();
             })
             .then ( (text) => {

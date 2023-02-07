@@ -305,14 +305,12 @@
             .catch( (error) => {
                 console.error(error);
             });
-
-            
         }
         
         function onload() {
-            const url = new URL(window.location.href);
-            email = url.searchParams.get('email');
-            password = url.searchParams.get('password');
+            email = localStorage.getItem("managerEmail");
+            password = localStorage.getItem("managerPassword");
+            managerID = localStorage.getItem("managerID");
 
             getTickets();
 
@@ -325,7 +323,7 @@
                     },
                 };
 
-                fetch(`http://localhost:8000/processTicket?email=${email}&password=${password}&managerid=${managerID}`, options)
+                fetch(`http://localhost:8000/processTicket`, options)
                 .then ( (response) => {
                     window.location.href = response.url;
                 })
@@ -336,6 +334,9 @@
 
             const logout = document.getElementById('logout');
             logout.addEventListener('click', function() {
+                localStorage.removeItem("managerEmail");
+                localStorage.removeItem("managerPassword");
+                localStorage.removeItem("managerID");
                 window.location.href = `http://localhost:8000/managerLogin`;
             });
         }

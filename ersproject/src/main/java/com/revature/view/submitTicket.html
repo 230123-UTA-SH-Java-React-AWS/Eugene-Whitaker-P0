@@ -300,28 +300,14 @@
         }
         
         function onload() {
-            const url = new URL(window.location.href);
-            email = url.searchParams.get('email');
-            password = url.searchParams.get('password');
+            email = localStorage.getItem("employeeEmail");
+            password = localStorage.getItem("employeePassword")
 
             getTickets();
 
             const refresh = document.getElementById('refresh');
             refresh.addEventListener('click', function() {
-                const options = {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                };
-
-                fetch(`http://localhost:8000/submitTicket?email=${email}&password=${password}`, options)
-                .then ( (response) => {
-                    window.location.href = response.url;
-                })
-                .catch( (error) => {
-                    console.error(error);
-                });
+                window.location.href = `http://localhost:8000/submitTicket`;
             });
 
             const sort = document.getElementById('sort');
@@ -335,6 +321,8 @@
 
             const logout = document.getElementById('logout');
             logout.addEventListener('click', function() {
+                localStorage.removeItem("employeeEmail");
+                localStorage.removeItem("employeePassword");
                 window.location.href = `http://localhost:8000/employeeLogin`;
             });
         }
