@@ -22,7 +22,7 @@
             border-radius: 64px;
             height: 768px;
             margin: 32px auto;
-            max-width: 512px;
+            max-width: 640px;
             min-width: 384px;
             padding: 16px;
             width: 50%;
@@ -39,7 +39,21 @@
             vertical-align: middle;
             margin-left: auto;
             margin-right: auto;
-            padding: 8px;
+        }
+
+        th, td {
+            padding: 0 16px;
+            border-bottom: 2px solid #000000;
+        }
+
+        th {
+            background-color: #E60024;
+            color: #FFFFFF;
+        }
+
+        td {
+            background-color: #333333;
+            color: #FFFFFF;
         }
 
         #submit-form {
@@ -106,7 +120,7 @@
         <div class="form-container">
             <h1>Expenses Reimbursement System</h1>
             <h4>SUBMIT A <span>TICKET</span></h4>
-            <table class=" ticket-table">
+            <table class=" ticket-table" cellspacing="0">
                 <thead>
                     <tr>
                         <th>ID</th>
