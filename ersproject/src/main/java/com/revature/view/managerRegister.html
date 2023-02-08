@@ -149,53 +149,59 @@
     <script defer> 
         function register() {
 
-            const managerid = document.getElementById('managerid');
+            const managerID = document.getElementById('managerid');
             const email = document.getElementById('email');
             const password = document.getElementById('password');
             const verify = document.getElementById('verify');
-            if (password.value == verify.value) {
-                const data = { 
-                    email: email.value,
-                    password: password.value,
-                    managerID: managerid.value,
-                };
 
-                const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
+            if (!isNaN(managerID.value)) {
+                if (password.value == verify.value) {
+                    const data = { 
+                        email: email.value,
+                        password: password.value,
+                        managerID: managerID.value,
+                    };
 
-                const options = {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Content-Length': content_length,
-                    },
-                    body: JSON.stringify(data),
-                };
+                    const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
 
-                fetch(`http://localhost:8000/managerRegister`, options)
-                .then ( (response) => {
-                        if(response.ok) window.location.href = response.url;
-                        else return response.text();
-                })
-                .then ( (text) => {
-                    const error = document.getElementById('error');
-                    switch(text) {
-                        case "BADID":
-                            error.innerHTML = "This ManagerID either not Registered or Already taken"
-                            error.style.display = "block";
-                            break;
-                        case "BADEMAIL":
-                            error.innerHTML = "This Email is Already Registered";
-                            error.style.display = "block";
-                            break;
-                        default:
-                            break;
-                    }
-                })
-                .catch( (error) => {
-                    console.error(error);
-                });
+                    const options = {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Content-Length': content_length,
+                        },
+                        body: JSON.stringify(data),
+                    };
+
+                    fetch(`http://localhost:8000/managerRegister`, options)
+                    .then ( (response) => {
+                            if(response.ok) window.location.href = response.url;
+                            else return response.text();
+                    })
+                    .then ( (text) => {
+                        const error = document.getElementById('error');
+                        switch(text) {
+                            case "BADID":
+                                error.innerHTML = "This ManagerID either not Registered or Already taken"
+                                error.style.display = "block";
+                                break;
+                            case "BADEMAIL":
+                                error.innerHTML = "This Email is Already Registered";
+                                error.style.display = "block";
+                                break;
+                            default:
+                                break;
+                        }
+                    })
+                    .catch( (error) => {
+                        console.error(error);
+                    });
+                } else {
+                    error.innerHTML = "Your passwords do not match";
+                    error.style.display = "block";
+                }
             } else {
-                error.innerHTML = "Your passwords do not match";
+                error.innerHTML = "'Manager ID' should be a number";
                 error.style.display = "block";
             }
         }

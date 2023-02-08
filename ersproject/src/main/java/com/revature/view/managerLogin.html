@@ -157,55 +157,60 @@
             const email = document.getElementById('email');
             const password = document.getElementById('password');
             
-            const data = { 
-                email: email.value,
-                password: password.value,
-                managerID: managerid.value,
-            };
+            if (!isNaN(managerID.value)) {
+                const data = { 
+                    email: email.value,
+                    password: password.value,
+                    managerID: managerid.value,
+                };
 
-            const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
+                const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
 
-            const options = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': content_length,
-                },
-                body: JSON.stringify(data),
-            };
+                const options = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': content_length,
+                    },
+                    body: JSON.stringify(data),
+                };
 
-            fetch(`http://localhost:8000/managerLogin`, options)
-            .then ( (response) => {
-                    if(response.ok) {
-                        localStorage.setItem("managerEmail", email.value);
-                        localStorage.setItem("managerPassword", password.value);
-                        localStorage.setItem("managerID", managerID.value);
-                        window.location.href = response.url;
+                fetch(`http://localhost:8000/managerLogin`, options)
+                .then ( (response) => {
+                        if(response.ok) {
+                            localStorage.setItem("managerEmail", email.value);
+                            localStorage.setItem("managerPassword", password.value);
+                            localStorage.setItem("managerID", managerID.value);
+                            window.location.href = response.url;
+                        }
+                        else return response.text();
+                })
+                .then ( (text) => {
+                    const error = document.getElementById('error');
+                    switch(text) {
+                        case "BADID":
+                            error.innerHTML = "Inncorrect ManagerID"
+                            error.style.display = "block";
+                            break;
+                        case "BADEMAIL":
+                            error.innerHTML = "Inncorrect Email";
+                            error.style.display = "block";
+                            break;
+                        case "BADPASS":
+                            error.innerHTML = "Inncorrect Password";
+                            error.style.display = "block";
+                            break;
+                        default:
+                            break;
                     }
-                    else return response.text();
-            })
-            .then ( (text) => {
-                const error = document.getElementById('error');
-                switch(text) {
-                    case "BADID":
-                        error.innerHTML = "Inncorrect ManagerID"
-                        error.style.display = "block";
-                        break;
-                    case "BADEMAIL":
-                        error.innerHTML = "Inncorrect Email";
-                        error.style.display = "block";
-                        break;
-                    case "BADPASS":
-                        error.innerHTML = "Inncorrect Password";
-                        error.style.display = "block";
-                        break;
-                    default:
-                        break;
-                }
-            })
-            .catch( (error) => {
-                console.error(error);
-            });
+                })
+                .catch( (error) => {
+                    console.error(error);
+                });
+            } else {
+                error.innerHTML = "'Manager ID' should be a number";
+                error.style.display = "block";
+            }
         }
         
         function onload() {
