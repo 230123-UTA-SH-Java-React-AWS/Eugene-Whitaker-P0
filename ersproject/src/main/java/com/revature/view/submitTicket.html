@@ -81,7 +81,7 @@
             width: 96px;
         }
 
-        #submit-ticket, #refresh, #logout, #sort {
+        #submit-ticket, #refresh, #logout, #filter {
             background-color: #E60024;
             border: 2px solid #DEDEDE;
             border-radius: 4px;
@@ -92,13 +92,13 @@
             width: 96px; 
         }
 
-        #submit-ticket:hover, #refresh:hover, #logout:hover, #sort:hover {
+        #submit-ticket:hover, #refresh:hover, #logout:hover, #filter:hover {
             background-color: #F70034;
             border-color: #000000;
             cursor: pointer;
         }
 
-        #sort {
+        #filter {
             width: 128px;
         }
 
@@ -133,11 +133,11 @@
                 </tbody>
             </table>
             <button id="refresh">Refresh</button>
-            <button id="sort">Sort by</button>
+            <button id="filter">Filter by</button>
             <form id="submit-form">
                 <button id="submit-ticket" type="submit">Submit</button>
                 <input id="amount" type="text" placeholder="dollar amount" required/>
-                <input id="description" type="text" placeholder="description" required/>
+                <input id="description" type="text" placeholder="description" />
             </form>
             <p id="added" style="display:none"></p>
             <button id="logout" type="button">Log Out</button>
@@ -229,8 +229,8 @@
             }
         }
 
-        function sortTable() {
-            let data = prompt("How would you like so sort?");
+        function filterTable() {
+            let data = prompt("Please choose 'pending', 'approved', or 'denied'");
 
             if (data === "approved" || data === "denied" || data === "pending") {
                 const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
@@ -315,8 +315,8 @@
                 window.location.href = `http://localhost:8000/submitTicket`;
             });
 
-            const sort = document.getElementById('sort');
-            sort.addEventListener('click', sortTable);
+            const filter = document.getElementById('filter');
+            filter.addEventListener('click', filterTable);
 
             const form = document.getElementById('submit-form');
             form.addEventListener('submit', function(event) {

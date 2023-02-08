@@ -127,7 +127,7 @@
                 <input id="password" type="password" placeholder="Password" required/>
 
                 <p class="forgot-password">Lost your password?</p>
-                <p class="forgot-password" style="display:none">Well I hope you find it, I'm sure it will turn up soon!</p>
+                <p class="forgot-password-message" style="display:none">Well I hope you find it, I'm sure it will turn up soon!</p>
 
                 <br />
                 
@@ -214,7 +214,7 @@
 
             const forgotPassword = document.getElementsByClassName('forgot-password')[0];
             forgotPassword.addEventListener('click', function() {
-                const message = document.getElementsByClassName('forgot-password')[1];
+                const message = document.getElementsByClassName('forgot-password-message')[0];
                 if(message.style.display == "none") message.style.display = "block";
                 else message.style.display = "none";
             })

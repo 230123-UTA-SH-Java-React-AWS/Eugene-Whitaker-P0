@@ -1,5 +1,6 @@
 package com.revature.controllers;
 
+import com.revature.App;
 import com.revature.model.Employee;
 import com.revature.repository.EmployeeRepository;
 import com.revature.service.EmployeeService;
@@ -97,16 +98,18 @@ public class EmployeeLogin implements HttpHandler {
                 if ((employee.getPassword().equals(newEmployee.getPassword()))) {
                     exchange.getResponseHeaders().add("Location", "http://localhost:8000/submitTicket");
                     exchange.sendResponseHeaders(RCODE_REDIRECT, -1);
+                    App.logger.info("Login for email: "+employee.getEmail()+" password: "+employee.getPassword());
                 } else {
-                    response = BADPASS;                    
+                    response = BADPASS;
                     exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
                     os.write(response.getBytes());
+                    App.logger.info(BADPASS+": "+newEmployee.getPassword() +" for email: "+employee.getEmail()); 
                 }
             } else {
                 response = BADEMAIL;
                 exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
                 os.write(response.getBytes());
-                
+                App.logger.info(BADEMAIL+": "+newEmployee.getEmail()); 
             }
             os.flush();
             os.close();

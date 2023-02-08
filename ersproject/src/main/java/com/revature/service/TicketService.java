@@ -55,6 +55,10 @@ public class TicketService  {
         }
     }
 
+    public Ticket getObjectsWhere(String cluase) {
+        return this.repository.getObjectsWhere(cluase);
+    }
+
     /**
      * <p>
      * This method gets an <code>ListM/code> of items from the database 

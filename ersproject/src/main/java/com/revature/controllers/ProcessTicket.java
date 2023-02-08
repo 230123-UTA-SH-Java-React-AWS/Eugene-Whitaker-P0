@@ -37,8 +37,10 @@ public class ProcessTicket implements HttpHandler {
 
     // Global variable for the Return Codes
     private static final int RCODE_SUCCESSFUL = 200;
+    private static final int RCODE_CLIENT_ERROR = 400;
 
     private static final String UPDATED = "UPDATED";
+    private static final String NOTUPDATED = "NOTUPDATED";
     
     /**
     * <p>
@@ -100,17 +102,32 @@ public class ProcessTicket implements HttpHandler {
     */
     private void putRequest(HttpExchange exchange) {
         try {
+            ObjectMapper mapper = new ObjectMapper();
+
             // Get ticket information from the client
             StringBuilder textBuilder = StringBuilderUtil.buildString(exchange);
 
+            Ticket newTicket = mapper.readValue(textBuilder.toString(), Ticket.class);
+
+            // If ticket has not been processed yet then
             // Update the database with the new information
             TicketService serviceTicket = new TicketService(new TicketRepository());
-            serviceTicket.updateRepository(textBuilder.toString());
+            String clause = "ID ="+"\'"+newTicket.getTicketID()+"\'";
+            Ticket ticket = serviceTicket.getObjectsWhere(clause);
 
             OutputStream os = exchange.getResponseBody();
-            String response = UPDATED;
-            exchange.sendResponseHeaders(RCODE_SUCCESSFUL, response.getBytes().length);
-            os.write(response.getBytes());
+            String response;
+            if (ticket.getPending() == true) {
+                serviceTicket.updateRepository(textBuilder.toString());
+                response = UPDATED;
+                exchange.sendResponseHeaders(RCODE_SUCCESSFUL, response.getBytes().length);
+                os.write(response.getBytes());
+            } else {
+                response = NOTUPDATED;
+                exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
+                os.write(response.getBytes());
+            }
+            os.flush();
             os.close();
         } catch (IOException e) {
             e.printStackTrace();

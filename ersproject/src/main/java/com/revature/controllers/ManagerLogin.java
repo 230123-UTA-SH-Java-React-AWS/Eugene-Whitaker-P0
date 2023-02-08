@@ -1,5 +1,6 @@
 package com.revature.controllers;
 
+import com.revature.App;
 import com.revature.model.Manager;
 import com.revature.repository.ManagerRepository;
 import com.revature.service.ManagerService;
@@ -101,20 +102,24 @@ public class ManagerLogin implements HttpHandler {
                     if (manager.getPassword().equals(newManager.getPassword())) {
                         exchange.getResponseHeaders().add("Location", "http://localhost:8000/processTicket");
                         exchange.sendResponseHeaders(RCODE_REDIRECT, -1);
+                        App.logger.info("Login for email: "+manager.getEmail()+" password: "+manager.getPassword());
                     } else {
                         response = BADPASS;
                         exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
                         os.write(response.getBytes());
+                        App.logger.info(BADPASS+": "+newManager.getPassword() +" for email: "+manager.getEmail());
                     }
                 } else {
                     response = BADID;
                     exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
                     os.write(response.getBytes());
+                    App.logger.info(BADID+": "+newManager.getManagerID()+ " for email: "+manager.getEmail());
                 }
         } else {
             response = BADEMAIL;
             exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
             os.write(response.getBytes());
+            App.logger.info(BADEMAIL+": "+newManager.getEmail());
         }
             os.flush();
             os.close();

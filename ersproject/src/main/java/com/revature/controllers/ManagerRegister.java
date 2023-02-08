@@ -1,5 +1,6 @@
 package com.revature.controllers;
 
+import com.revature.App;
 import com.revature.model.Manager;
 import com.revature.repository.ManagerIDRepository;
 import com.revature.repository.ManagerRepository;
@@ -114,20 +115,24 @@ public class ManagerRegister implements HttpHandler {
                         service.saveToRepository(textBuilder.toString());
                         exchange.getResponseHeaders().add("Location", "http://localhost:8000/managerLogin");
                         exchange.sendResponseHeaders(RCODE_REDIRECT, -1);
+                        App.logger.info("Registration for email: "+newManager.getEmail()+" password: "+newManager.getPassword());
                     } else {
                         response = BADID;
                         exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
                         os.write(response.getBytes());
+                        App.logger.info(BADID+": "+newManager.getManagerID()+" ID already assigned"); 
                     }
                 } else {
                     response = BADEMAIL;
                     exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
                     os.write(response.getBytes());
+                    App.logger.info(BADEMAIL+": "+newManager.getEmail());
                 }
             } else {
                 response = BADID;
                 exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
                 os.write(response.getBytes());
+                App.logger.info(BADID+": "+newManager.getManagerID()+" ID not currently registered");
             }
             os.flush();
             os.close();

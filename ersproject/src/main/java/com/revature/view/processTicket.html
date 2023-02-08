@@ -150,96 +150,134 @@
         };
 
         function approveTicket() {
-            const element = event.target;
-            let ticketID, amount, description, status = "approved", pending = false;
-            
-            let siblings = getSiblings(element);
-            for(let i = 0; i < siblings.length; i++) {
-                let classes = siblings[i].classList;
-                for( let j = 0; j < classes.length; j++) {
-                    if ( classes[j] == "id") {
-                        ticketID = siblings[i].innerHTML;
-                    } else if ( classes[j] == "amt") {
-                        amount = siblings[i].innerHTML;
-                    } else if ( classes[j] == "desc") {
-                        description = siblings[i].innerHTML;
+            let response = prompt("Are you sure you want to deny this ticket(y/n)?");
+            if (response == "y") {
+                const element = event.target;
+                let ticketID, amount, description, status = "approved", pending = false;
+                
+                let siblings = getSiblings(element);
+                for(let i = 0; i < siblings.length; i++) {
+                    let classes = siblings[i].classList;
+                    for( let j = 0; j < classes.length; j++) {
+                        if ( classes[j] == "id") {
+                            ticketID = siblings[i].innerHTML;
+                        } else if ( classes[j] == "amt") {
+                            amount = siblings[i].innerHTML;
+                        } else if ( classes[j] == "desc") {
+                            description = siblings[i].innerHTML;
+                        }
                     }
                 }
-            }
-            const data = { 
-                ticketID: ticketID,
-                amount: amount,
-                description: description,
-                pending: pending,
-                status: status,
-            };
+                const data = { 
+                    ticketID: ticketID,
+                    amount: amount,
+                    description: description,
+                    pending: pending,
+                    status: status,
+                };
 
-            const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
-            const options = {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': content_length,
-                },
-                body: JSON.stringify(data),
-            };
-            fetch(`http://localhost:8000/processTickets`, options)
-            .then( (response) => {
-                if(response.ok) return response.text();
-            })
-            .then( (text) => {
-                const processed = document.getElementById('processed');
-                processed.innerHTML = "Ticket Successfully Processed";
+                const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
+                const options = {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': content_length,
+                    },
+                    body: JSON.stringify(data),
+                };
+                fetch(`http://localhost:8000/processTickets`, options)
+                .then( (response) => response.text())
+                .then( (text) => {
+                    const processed = document.getElementById('processed');
+                    switch(text) {
+                        case "UPDATED":
+                            processed.innerHTML = "Ticket Successfully Processed";
+                            processed.style.display = "block";
+                            processed.style.color = "#333333";
+                            break;
+                        case "NOTUPDATED":
+                            processed.innerHTML = "Ticket Already Processed";
+                            processed.style.display = "block";
+                            processed.style.color = "#F70034";
+                            break;
+                    }
+                    
+                })
+                .catch( (error) => {
+                    console.error(error);
+                });
+            } else {
+                processed.innerHTML = "Processed Cancelled";
                 processed.style.display = "block";
-            })
+                processed.style.color = "#F70034";
+            }
         }
 
         function denyTicket() {
-            const element = event.target;
-            let ticketID, amount, description, status = "denied", pending = false;
-            
-            let siblings = getSiblings(element);
-            for(let i = 0; i < siblings.length; i++) {
-                let classes = siblings[i].classList;
-                for( let j = 0; j < classes.length; j++) {
-                    if ( classes[j] == "id") {
-                        ticketID = siblings[i].innerHTML;
-                        console.log(ticketID);
-                    } else if ( classes[j] == "amt") {
-                        amount = siblings[i].innerHTML;
-                        console.log(amount);
-                    } else if ( classes[j] == "desc") {
-                        description = siblings[i].innerHTML;
-                        console.log(description);
+            let response = prompt("Are you sure you want to deny this ticket(y/n)?");
+            if (response == "y") {
+                const element = event.target;
+                let ticketID, amount, description, status = "denied", pending = false;
+                
+                let siblings = getSiblings(element);
+                for(let i = 0; i < siblings.length; i++) {
+                    let classes = siblings[i].classList;
+                    for( let j = 0; j < classes.length; j++) {
+                        if ( classes[j] == "id") {
+                            ticketID = siblings[i].innerHTML;
+                            console.log(ticketID);
+                        } else if ( classes[j] == "amt") {
+                            amount = siblings[i].innerHTML;
+                            console.log(amount);
+                        } else if ( classes[j] == "desc") {
+                            description = siblings[i].innerHTML;
+                            console.log(description);
+                        }
                     }
                 }
-            }
-            const data = { 
-                ticketID: ticketID,
-                amount: amount,
-                description: description,
-                pending: pending,
-                status: status,
-            };
+                const data = { 
+                    ticketID: ticketID,
+                    amount: amount,
+                    description: description,
+                    pending: pending,
+                    status: status,
+                };
 
-            const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
-            const options = {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': content_length,
-                },
-                body: JSON.stringify(data),
-            };
-            fetch(`http://localhost:8000/processTickets`, options)
-            .then( (response) => {
-                if(response.ok) return response.text();
-            })
-            .then( (text) => {
-                const processed = document.getElementById('processed');
-                processed.innerHTML = "Ticket Successfully Processed";
+                const content_length = (new TextEncoder().encode(JSON.stringify(data))).length;
+                const options = {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': content_length,
+                    },
+                    body: JSON.stringify(data),
+                };
+                fetch(`http://localhost:8000/processTickets`, options)
+                .then( (response) => response.text())
+                .then( (text) => {
+                    const processed = document.getElementById('processed');
+                    switch(text) {
+                        case "UPDATED":
+                            processed.innerHTML = "Ticket Successfully Processed";
+                            processed.style.display = "block";
+                            processed.style.color = "#333333";
+                            break;
+                        case "NOTUPDATED":
+                            processed.innerHTML = "Ticket Already Processed";
+                            processed.style.display = "block";
+                            processed.style.color = "#F70034";
+                            break;
+                    }
+                    
+                })
+                .catch( (error) => {
+                    console.error(error);
+                });
+            } else {
+                processed.innerHTML = "Processed Cancelled";
                 processed.style.display = "block";
-            })
+                processed.style.color = "#F70034";
+            }
         }
 
         function addEventListeners() {

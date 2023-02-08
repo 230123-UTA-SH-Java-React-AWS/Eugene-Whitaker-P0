@@ -60,6 +60,30 @@ public class TicketRepository implements DAOsaveToRepositoryFK<Ticket, Employee>
         }
     }
 
+    public Ticket getObjectsWhere(String clause) {
+        String sql = "SELECT * FROM ticket WHERE "+clause;
+        Ticket ticket = new Ticket();
+
+        try (Connection connection = ConnectionUtil.getConnection()) {
+            Statement stmt = connection.createStatement();
+
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                ticket.setTicketID(rs.getInt(1));
+                ticket.setEmployeeID(rs.getInt(2));
+                ticket.setAmount(rs.getFloat(3));
+                ticket.setDescription(rs.getString(4));
+                ticket.setPending(rs.getBoolean(5));
+                ticket.setStatus(rs.getString(6));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return ticket;
+    }
+
     /**
      * <p>
      * This method gets an <code>ListM/code> of items from the database 
