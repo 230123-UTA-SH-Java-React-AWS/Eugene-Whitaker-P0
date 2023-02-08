@@ -117,7 +117,7 @@ public class ProcessTicket implements HttpHandler {
 
             OutputStream os = exchange.getResponseBody();
             String response;
-            if (ticket.getPending() == true) {
+            if ((ticket.getPending() == true) && ((newTicket.getStatus().equals("approved")) || (newTicket.getStatus().equals("denied")))) {
                 serviceTicket.updateRepository(textBuilder.toString());
                 response = UPDATED;
                 exchange.sendResponseHeaders(RCODE_SUCCESSFUL, response.getBytes().length);
