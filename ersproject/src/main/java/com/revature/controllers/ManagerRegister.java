@@ -2,9 +2,7 @@ package com.revature.controllers;
 
 import com.revature.App;
 import com.revature.model.Manager;
-import com.revature.repository.ManagerIDRepository;
 import com.revature.repository.ManagerRepository;
-import com.revature.service.ManagerIDService;
 import com.revature.service.ManagerService;
 import com.revature.utils.StringBuilderUtil;
 
@@ -84,44 +82,28 @@ public class ManagerRegister implements HttpHandler {
             Manager newManager = mapper.readValue(textBuilder.toString(), Manager.class);
 
             // Verify it by sending a query to the database
-            // for the managerids table
-            // we do the to ensure a manager is registering in with
-            // a predetermined managerID
-            ManagerIDService IDservice = new ManagerIDService(new ManagerIDRepository());
+            // we do the to ensure a manager is registering
+            // in with a predetermined managerID
+            ManagerService service = new ManagerService(new ManagerRepository());
             String clause = "ID = "+"\'"+newManager.getManagerID()+"\'";
-            Integer managerID = IDservice.getObjectsWhere(clause);
+            Manager managerID = service.getObjectsWhere(clause);
 
             // If the query comes back as null
             // Send BAD Request response code back to browser
             OutputStream os = exchange.getResponseBody();
             String response;
-            if (managerID != 0) {
+            if (managerID.getManagerID() != 0 && managerID.getEmail() == null) {
                 // Verify it by sending a query to the database
                 // for the manager table
-                ManagerService service = new ManagerService(new ManagerRepository());
                 clause = "email = "+"\'"+newManager.getEmail()+"\'";
                 Manager manager = service.getObjectsWhere(clause);
-
                 // If the query comes back as not null
                 // Send BAD Request response code back to browser
                 if (manager.getEmail() == null) {
-                    clause = "ID = "+"\'"+managerID+"\'";
-                    manager = service.getObjectsWhere(clause);
-
-                    // If the managerID sent from client 
-                    // doesn't matches the database query 
-                    // Send BAD Request response code back to browser
-                    if (manager.getManagerID() == 0) {
-                        service.saveToRepository(textBuilder.toString());
-                        exchange.getResponseHeaders().add("Location", "http://localhost:8000/managerLogin");
-                        exchange.sendResponseHeaders(RCODE_REDIRECT, -1);
-                        App.logger.info("Registration for email: "+newManager.getEmail()+" password: "+newManager.getPassword());
-                    } else {
-                        response = BADID;
-                        exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
-                        os.write(response.getBytes());
-                        App.logger.info(BADID+": "+newManager.getManagerID()+" ID already assigned"); 
-                    }
+                    service.saveToRepository(textBuilder.toString());
+                    exchange.getResponseHeaders().add("Location", "http://localhost:8000/managerLogin");
+                    exchange.sendResponseHeaders(RCODE_REDIRECT, -1);
+                    App.logger.info("Registration for email: "+newManager.getEmail()+" password: "+newManager.getPassword());
                 } else {
                     response = BADEMAIL;
                     exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
@@ -132,11 +114,10 @@ public class ManagerRegister implements HttpHandler {
                 response = BADID;
                 exchange.sendResponseHeaders(RCODE_CLIENT_ERROR, response.getBytes().length);
                 os.write(response.getBytes());
-                App.logger.info(BADID+": "+newManager.getManagerID()+" ID not currently registered");
+                App.logger.info(BADID+": "+newManager.getManagerID()+" ID not currently registered or Already assigned");
             }
             os.flush();
             os.close();
-
         } catch (IOException e) {
             e.printStackTrace();
         }

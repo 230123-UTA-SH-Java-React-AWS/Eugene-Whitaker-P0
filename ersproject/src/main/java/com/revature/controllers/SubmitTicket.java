@@ -137,6 +137,7 @@ public class SubmitTicket implements HttpHandler {
 
             // Send it to the database
             TicketService serviceTicket = new TicketService(new TicketRepository());
+            System.out.println(newTicket.getAmount());
             serviceTicket.saveToRepositoryFK(jsonString, this.employee);
 
             OutputStream os = exchange.getResponseBody();

@@ -2,8 +2,6 @@ package com.revature.repository;
 
 import com.revature.App;
 import com.revature.model.Employee;
-import com.revature.repository.dao.DAOgetObjectsWhere;
-import com.revature.repository.dao.DAOsaveToRepository;
 import com.revature.utils.ConnectionUtil;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,7 +24,7 @@ import java.sql.Statement;
  *         </ul>
  *         for more information on other repositories.
  */
-public class EmployeeRepository implements DAOsaveToRepository<Employee>, DAOgetObjectsWhere<Employee> {
+public class EmployeeRepository {
     /**
      * <p>
      * This method saves an object to the database
@@ -34,7 +32,6 @@ public class EmployeeRepository implements DAOsaveToRepository<Employee>, DAOget
      * 
      * @param employee the object to be saved
      */
-    @Override
     public void saveToRepository(Employee employee) {
         String sql = "INSERT INTO employee (email, pass) VALUES (?, ?)";
 
@@ -60,7 +57,6 @@ public class EmployeeRepository implements DAOsaveToRepository<Employee>, DAOget
      * @param clause the WHERE clause meant to select a unique item
      * @return The unique item selected
      */
-    @Override
     public Employee getObjectsWhere(String clause) {
         String sql = "SELECT * FROM employee WHERE "+clause;
         Employee employee = new Employee();

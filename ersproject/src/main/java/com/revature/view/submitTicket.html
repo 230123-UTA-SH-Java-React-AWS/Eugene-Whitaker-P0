@@ -152,13 +152,14 @@
 
         function submit() {
             const amount = document.getElementById('amount');
+            let value = Math.round(amount.value * 100) / 100;
             const description = document.getElementById('description');
             const added = document.getElementById('added');
 
-            if(!isNaN(amount.value)) {
-                if(amount.value > 0) {
+            if(!isNaN(value)) {
+                if(value > 0) {
                     const data = {
-                        amount: amount.value,
+                        amount: value,
                         description: description.value, 
                     };
 
